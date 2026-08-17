@@ -1,0 +1,264 @@
+@import "tailwindcss";
+
+/* ===================================================================
+   ZAZ Digital Solutions — Design Tokens
+   Dark editorial system. Tailwind v4 CSS-first config (no tailwind.config.js).
+   =================================================================== */
+
+:root {
+  /* Backgrounds */
+  --zaz-bg: #0b0b0b;
+  --zaz-bg-deep: #070707;
+
+  /* Surfaces */
+  --zaz-surface: #111111;
+  --zaz-surface-alt: #151515;
+  --zaz-card: #1b1b1b;
+
+  /* Text */
+  --zaz-text: #f4f1ea;
+  --zaz-text-secondary: #a8a8a8;
+  --zaz-muted: #6f6f6f;
+
+  /* Metallic ivory accent */
+  --zaz-accent: #d8d3c8;
+  --zaz-accent-dim: #bdb7ab;
+
+  /* Structure */
+  --zaz-border: rgba(244, 241, 234, 0.1);
+  --zaz-border-strong: rgba(244, 241, 234, 0.18);
+  --zaz-radius-sm: 3px;
+  --zaz-radius: 6px;
+  --zaz-radius-pill: 999px;
+  --zaz-container: 1440px;
+
+  /* Fluid type scale */
+  --zaz-text-hero: clamp(2.5rem, 1.3rem + 4.6vw, 5.75rem);
+  --zaz-text-h1: clamp(2.25rem, 1.4rem + 3.4vw, 4rem);
+  --zaz-text-h2: clamp(1.75rem, 1.3rem + 2vw, 2.75rem);
+  --zaz-text-h3: clamp(1.25rem, 1.05rem + 0.9vw, 1.75rem);
+  --zaz-text-body-lg: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+  --zaz-text-body: 1rem;
+  --zaz-text-small: 0.875rem;
+  --zaz-text-label: 0.75rem;
+
+  /* Motion */
+  --zaz-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --zaz-duration: 0.6s;
+}
+
+/* Short-viewport laptops (e.g. 1280x720) — the hero heading's fluid clamp
+   above is width-driven, so it doesn't shrink on a wide-but-short screen;
+   this keeps the full hero (heading + CTAs + visual) inside the first
+   viewport without touching layout, copy, or sizing on normal-height screens. */
+@media (max-height: 800px) {
+  :root {
+    --zaz-text-hero: clamp(2.25rem, 1.1rem + 3.6vw, 4.5rem);
+  }
+}
+
+@theme inline {
+  --color-zaz-bg: var(--zaz-bg);
+  --color-zaz-bg-deep: var(--zaz-bg-deep);
+  --color-zaz-surface: var(--zaz-surface);
+  --color-zaz-surface-alt: var(--zaz-surface-alt);
+  --color-zaz-card: var(--zaz-card);
+  --color-zaz-text: var(--zaz-text);
+  --color-zaz-text-secondary: var(--zaz-text-secondary);
+  --color-zaz-muted: var(--zaz-muted);
+  --color-zaz-accent: var(--zaz-accent);
+  --color-zaz-accent-dim: var(--zaz-accent-dim);
+  --color-zaz-border: var(--zaz-border);
+  --color-zaz-border-strong: var(--zaz-border-strong);
+
+  --font-heading: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-zaz-sm: var(--zaz-radius-sm);
+  --radius-zaz: var(--zaz-radius);
+  --radius-zaz-pill: var(--zaz-radius-pill);
+}
+
+/* ===================================================================
+   Base
+   =================================================================== */
+
+* {
+  border-color: var(--zaz-border);
+}
+
+html {
+  scroll-behavior: auto;
+  color-scheme: dark;
+}
+
+body {
+  background: var(--zaz-bg);
+  color: var(--zaz-text);
+  font-family: var(--font-body);
+  font-size: var(--zaz-text-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-heading);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+::selection {
+  background: var(--zaz-accent);
+  color: var(--zaz-bg-deep);
+}
+
+:focus-visible {
+  outline: 1px solid var(--zaz-accent);
+  outline-offset: 3px;
+}
+
+.zaz-label {
+  font-family: var(--font-body);
+  font-size: var(--zaz-text-label);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--zaz-text-secondary);
+  font-weight: 500;
+}
+
+@keyframes zaz-tile-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.zaz-tile-enter {
+  animation: zaz-tile-in 0.5s var(--zaz-ease) both;
+}
+
+@keyframes zaz-nav-item-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.zaz-nav-item-enter {
+  animation: zaz-nav-item-in 0.35s var(--zaz-ease) both;
+}
+
+/* Slow ambient float for decorative glow layers (AmbientGlow, HeroBackground).
+   Two phase-offset variants so stacked layers don't move in visible sync. */
+@keyframes zaz-float-a {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(2%, -4%);
+  }
+}
+
+@keyframes zaz-float-b {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-3%, 3%);
+  }
+}
+
+.zaz-float-a {
+  animation: zaz-float-a 14s ease-in-out infinite;
+}
+
+.zaz-float-b {
+  animation: zaz-float-b 18s ease-in-out infinite;
+}
+
+@keyframes zaz-float-c {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-1.5%, -2.5%);
+  }
+}
+
+.zaz-float-c {
+  animation: zaz-float-c 24s ease-in-out infinite;
+}
+
+/* Slow-flowing "light trail" along an SVG connector line — a large dash
+   drifting along the path rather than a spinner/particle, kept subtle via
+   low stroke-opacity on the base line underneath. */
+@keyframes zaz-dash-flow {
+  to {
+    stroke-dashoffset: -200;
+  }
+}
+
+.zaz-dash-flow {
+  stroke-dasharray: 6 14;
+  animation: zaz-dash-flow 10s linear infinite;
+}
+
+@keyframes zaz-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.zaz-glow-pulse {
+  animation: zaz-glow-pulse 4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Reveal.tsx sets an inline pre-animation style (opacity/transform, or
+     filter/clip-path depending on variant) so its GSAP entrance has no
+     flash-of-visible-content to snap from. That inline style would
+     otherwise leave content hidden until the effect runs JS's gsap.set();
+     this guarantees it's visible immediately instead, independent of JS
+     timing, for every variant. */
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    clip-path: none !important;
+  }
+
+  /* Same pre-animation-flash guard as [data-reveal], for RevealText's
+     per-word mask spans (components/ui/RevealText.tsx). */
+  .zaz-reveal-word-inner {
+    transform: none !important;
+  }
+}
