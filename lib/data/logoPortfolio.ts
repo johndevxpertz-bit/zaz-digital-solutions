@@ -9,57 +9,76 @@ export type LogoCategory = {
   items: PortfolioImageItem[];
 };
 
-// "Animated Logo Design" intentionally excluded — Animated Logos is now its
-// own separate top-level tab (real video files, see AnimatedLogoPanel), so a
-// same-named subtype filter here would misleadingly cycle onto static image
-// items within these categories, none of which are actually animated.
-const LOGO_SUBTYPES = ["2D Logo Design", "3D Logo Design", "Mascot Logo Design", "Illustrative Logo Design"];
+const LOGO_ASSET_DIR = "portfolio/logos/more logos";
+
+type RealLogoAsset = { file: string; title: string };
 
 /**
- * Real client/portfolio artwork (public/portfolio/logos/all logos/) takes priority over
- * the generated placeholder mark for a slot — this maps each real file's extension and
- * a subtype reflecting how it was actually designed (visually inspected, not filename-guessed).
- * Slots with no entry here keep the original self-authored SVG placeholder.
+ * Real logo work only — sourced from public/portfolio/logos/more logos/
+ * (inspected and categorized by actual visual content, not filename
+ * guessing). No generated/placeholder logos. A category with no matching
+ * real assets is left as an empty array — LogoCategoryPanel already shows a
+ * "More examples coming soon" state for that case, so nothing is invented
+ * to fill a slot.
  */
-const LOGO_ASSET_OVERRIDES: Partial<Record<string, { ext: string; subtype: string }>> = {
-  "lettermark-01": { ext: "png", subtype: "2D Logo Design" },
-  "lettermark-02": { ext: "png", subtype: "3D Logo Design" },
-  "pictorial-mark-01": { ext: "png", subtype: "Illustrative Logo Design" },
-  "pictorial-mark-02": { ext: "jpg", subtype: "2D Logo Design" },
-  "pictorial-mark-03": { ext: "jpg", subtype: "Illustrative Logo Design" },
-  "abstract-mark-01": { ext: "jpg", subtype: "2D Logo Design" },
-  "abstract-mark-02": { ext: "jpg", subtype: "2D Logo Design" },
-  "mascot-logo-01": { ext: "png", subtype: "Mascot Logo Design" },
-  "mascot-logo-02": { ext: "png", subtype: "Mascot Logo Design" },
-  "mascot-logo-03": { ext: "png", subtype: "Mascot Logo Design" },
-  "combination-mark-01": { ext: "png", subtype: "3D Logo Design" },
-  "combination-mark-02": { ext: "png", subtype: "2D Logo Design" },
-  "combination-mark-03": { ext: "png", subtype: "2D Logo Design" },
-  "combination-mark-04": { ext: "png", subtype: "2D Logo Design" },
-  "combination-mark-05": { ext: "png", subtype: "2D Logo Design" },
-  "combination-mark-06": { ext: "png", subtype: "Illustrative Logo Design" },
-  "emblem-01": { ext: "png", subtype: "2D Logo Design" },
-  "emblem-02": { ext: "png", subtype: "2D Logo Design" },
-  "emblem-03": { ext: "png", subtype: "2D Logo Design" },
-  "emblem-04": { ext: "png", subtype: "2D Logo Design" },
-  "emblem-05": { ext: "png", subtype: "2D Logo Design" },
-  "emblem-06": { ext: "jpg", subtype: "2D Logo Design" },
+const REAL_LOGO_ASSETS: Record<LogoCategorySlug, RealLogoAsset[]> = {
+  wordmark: [
+    { file: "122.png", title: "Ember & Oak" },
+    { file: "124.png", title: "Sterling Point Realty" },
+    { file: "Bound.jpg", title: "Bound" },
+    { file: "CRS LOGO 2 (1).png", title: "CRS — Carbide Recovery Solution" },
+    { file: "Sample 1 Front.png", title: "Majoed Salou Event Planning" },
+  ],
+  lettermark: [],
+  "pictorial-mark": [{ file: "FullLogo2.png", title: "Equestrian Mark" }],
+  "abstract-mark": [],
+  "mascot-logo": [
+    { file: "ChatGPT Image Aug 17, 2026, 09_57_41 AM.png", title: "Gladiator" },
+    { file: "t54.png", title: "Tubenix Gamer" },
+    { file: "Gemini_Generated_Image_hzuhldhzuhldhzuh.jpeg", title: "Titan Strength Club" },
+    { file: "Gemini_Generated_Image_r50biwr50biwr50b.jpeg", title: "Fluffy" },
+  ],
+  "combination-mark": [
+    { file: "121.png", title: "IMTS26" },
+    { file: "n power.jpg", title: "N Power" },
+    { file: "654334565432.jpeg", title: "NNG Industries" },
+    { file: "Ginou.jpg", title: "Ginou Creations" },
+    { file: "In to the bubbles llc.jpg", title: "Into The Bubbles LLC" },
+    { file: "Madrid Service .jpeg", title: "O Madrid Services LLC" },
+    { file: "Nelson.png", title: "Landscapes by Nelson" },
+    { file: "Roadmap Heather.jpg", title: "LifeMap Compass" },
+    { file: "Rooted.png", title: "Rooted Clinical Wellness" },
+    { file: "Gemini_Generated_Image_o80zjwo80zjwo80z.jpeg", title: "BluePeak Advisory" },
+    { file: "Gemini_Generated_Image_wiltlzwiltlzwilt.jpeg", title: "Eli's Quality" },
+  ],
+  emblem: [
+    { file: "125.png", title: "Urban Spoon" },
+    { file: "212.png", title: "PureCare Dental" },
+    { file: "234321.jpeg", title: "Crow Bookkeeping" },
+    { file: "234321234.jpeg", title: "The Toy Box" },
+    { file: "32123.jpeg", title: "GameForge" },
+    { file: "534.png", title: "Iron River LLC" },
+    { file: "53cc705a-8f27-49fc-8882-0b1500f92670 (1).png", title: "Hall LLC" },
+    { file: "542.jpeg", title: "Hall LLC Automotive" },
+    { file: "ChatGPT Image Aug 17, 2026, 09_56_10 AM.png", title: "Penguin" },
+    { file: "Vibe Guys.webp", title: "It's A Vibe Guys LLC" },
+    { file: "cfrdsvsvs.jpeg", title: "Velora Apparel" },
+    { file: "w3e2s.png", title: "Panda" },
+    { file: "Gemini_Generated_Image_a5wwq8a5wwq8a5ww.jpeg", title: "Urban Brew Cafe" },
+    { file: "Gemini_Generated_Image_ftai2wftai2wftai.jpeg", title: "Nibble" },
+    { file: "Gemini_Generated_Image_hr7hx9hr7hx9hr7h.jpeg", title: "Pebble" },
+    { file: "Gemini_Generated_Image_mmu3qommu3qommu3.jpeg", title: "The Apex Club" },
+    { file: "Gemini_Generated_Image_qhl39uqhl39uqhl3.jpeg", title: "Frosty" },
+    { file: "Gemini_Generated_Image_qr5cskqr5cskqr5c.jpeg", title: "Pingo" },
+  ],
 };
 
-function buildLogoItems(slug: LogoCategorySlug, name: string): PortfolioImageItem[] {
-  return Array.from({ length: 6 }, (_, index) => {
-    const number = String(index + 1).padStart(2, "0");
-    const id = `${slug}-${number}`;
-    const override = LOGO_ASSET_OVERRIDES[id];
-    return {
-      id,
-      title: `${name} ${number}`,
-      image: override
-        ? `portfolio/logos/${id}.${override.ext}`
-        : `portfolio/logos/${id}.svg`,
-      subtype: override ? override.subtype : LOGO_SUBTYPES[index % LOGO_SUBTYPES.length],
-    };
-  });
+function buildLogoItems(slug: LogoCategorySlug): PortfolioImageItem[] {
+  return REAL_LOGO_ASSETS[slug].map((asset, index) => ({
+    id: `${slug}-${String(index + 1).padStart(2, "0")}`,
+    title: asset.title,
+    image: `${LOGO_ASSET_DIR}/${asset.file}`,
+  }));
 }
 
 function buildLogoCategory(
@@ -71,8 +90,11 @@ function buildLogoCategory(
     slug,
     name,
     description,
-    subtypes: LOGO_SUBTYPES,
-    items: buildLogoItems(slug, name),
+    // No per-item subtype data exists for the real assets, so the old
+    // 2D/3D/Mascot/Illustrative sub-filter is left empty rather than
+    // guessed — LogoCategoryPanel only renders pills for entries present here.
+    subtypes: [],
+    items: buildLogoItems(slug),
   };
 }
 

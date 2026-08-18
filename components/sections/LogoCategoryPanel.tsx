@@ -112,7 +112,7 @@ export default function LogoCategoryPanel({ category, pricing, items }: LogoCate
 
       <div>
         <p className="zaz-label mb-6">Pricing — {category.name}</p>
-        <div className="grid gap-5 sm:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {pricing.packages.map((pkg) => (
             <PricingCard
               key={pkg.tier}
@@ -121,7 +121,7 @@ export default function LogoCategoryPanel({ category, pricing, items }: LogoCate
               priceSuffix="one-time"
               features={pkg.features}
               footnote={`Delivery: ${pkg.deliveryEstimate}`}
-              highlighted={pkg.tier === 2}
+              highlighted={pkg.tier === 3}
               ctaHref="/contact"
               ctaLabel="Start a project"
             />

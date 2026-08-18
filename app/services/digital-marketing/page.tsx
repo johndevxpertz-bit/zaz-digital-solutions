@@ -25,17 +25,12 @@ export default function DigitalMarketingPage() {
     panels[service.slug] = (
       <div className="grid gap-16">
         <div>
-          <p className="text-zaz-text-secondary" style={{ fontSize: "var(--zaz-text-body-lg)" }}>
-            {service.description}
-          </p>
-          <div className="mt-8">
-            <MarketingCaseStudyCard name={service.name} caseStudy={service.caseStudy} />
-          </div>
+          <MarketingCaseStudyCard name={service.name} caseStudy={service.caseStudy} />
         </div>
 
         <div>
           <p className="zaz-label mb-6">Pricing — {service.name}</p>
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="grid gap-5 sm:grid-cols-3">
             {pricing.packages.map((pkg) => (
               <PricingCard
                 key={pkg.tier}

@@ -8,7 +8,12 @@ import path from "node:path";
  */
 export function resolveMediaAsset(relativePath: string): string | null {
   const normalized = relativePath.replace(/^\/+/, "");
-  return existsSync(path.join(process.cwd(), "public", normalized)) ? `/${normalized}` : null;
+  if (!existsSync(path.join(process.cwd(), "public", normalized))) return null;
+  // Every caller renders this via next/image, which does its own URL
+  // encoding of the src it's given — so this stays a plain (unencoded)
+  // path, even for real filenames with spaces/parens in
+  // public/portfolio/logos/more logos/. Pre-encoding here would double-encode.
+  return `/${normalized}`;
 }
 
 const ANIMATED_LOGO_DIR = "portfolio/logos/Animated logos";

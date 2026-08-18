@@ -210,3 +210,50 @@ export const customPortfolioItems: PortfolioImageItem[] = onlyFeatured(
   websitePortfolio.find((group) => group.buildType === "custom")!.types.flatMap((type) => type.items),
   CUSTOM_FEATURED_ORDER
 );
+
+// ---------------------------------------------------------------------------
+// Custom Website showcase — /services/website-design only. A single,
+// non-categorized list of the real custom-coded live projects (no per-type
+// tabs), shown in a fixed order. Kept separate from `websitePortfolio`
+// above (which still powers /portfolio's Custom Websites filter and its 7
+// pricing-oriented site types) so that data — and the homepage teaser that
+// reads from it — is untouched.
+// ---------------------------------------------------------------------------
+
+export type CustomWebsiteShowcaseItem = {
+  id: string;
+  title: string;
+  /** Path relative to /public. Resolved via lib/media.ts; falls back to the honest placeholder when no screenshot exists yet. */
+  image: string;
+  url: string;
+};
+
+export const customWebsiteShowcase: CustomWebsiteShowcaseItem[] = [
+  {
+    id: "custom-showcase-comforting-croissant",
+    title: "Comforting Croissant",
+    image: "portfolio/websites/custom/portfolio-01.jpg",
+    url: "https://comforting-croissant-f31ad1.netlify.app/",
+  },
+  {
+    id: "custom-showcase-curious-truffle",
+    title: "Curious Truffle",
+    image: "portfolio/websites/custom/business-01.jpg",
+    url: "https://curious-truffle-2486d9.netlify.app/",
+  },
+  {
+    id: "custom-showcase-najahs-naturals",
+    title: "Najah's Naturals",
+    image: "portfolio/websites/custom/ecommerce-01.jpg",
+    url: "https://najahs-naturals-demo.netlify.app/",
+  },
+  {
+    id: "custom-showcase-aura-estates",
+    title: "Aura Estates",
+    // No screenshot supplied yet — resolveMediaAsset returns null for this
+    // path and the grid falls back to the standard placeholder card rather
+    // than inventing one.
+    image: "portfolio/websites/custom/aura-estates-01.jpg",
+    url: "http://aura-estates-demo.surge.sh",
+  },
+];

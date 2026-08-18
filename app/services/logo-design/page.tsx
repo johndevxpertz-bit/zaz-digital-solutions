@@ -5,10 +5,9 @@ import Reveal from "@/components/ui/Reveal";
 import TabPanels from "@/components/ui/TabPanels";
 import PageHeroVisual from "@/components/sections/PageHeroVisual";
 import LogoCategoryPanel from "@/components/sections/LogoCategoryPanel";
-import AnimatedLogoPanel from "@/components/sections/AnimatedLogoPanel";
 import { logoCategories } from "@/lib/data/logoPortfolio";
 import { logoPricing } from "@/lib/data/pricing";
-import { resolveMediaAsset, getAnimatedLogoAssets } from "@/lib/media";
+import { resolveMediaAsset } from "@/lib/media";
 
 export const metadata: Metadata = {
   title: "Logo Design",
@@ -27,18 +26,7 @@ export default function LogoDesignPage() {
     panels[category.slug] = <LogoCategoryPanel category={category} pricing={pricing} items={resolvedItems} />;
   }
 
-  // Animated Logos is a real, separate category (video assets, not static
-  // images) appended after the 7 static ones — deliberately not part of
-  // logoCategories/logoPricing so the static categories/pricing above are
-  // completely untouched. See AnimatedLogoPanel for why it can't reuse
-  // LogoCategoryPanel (no subtype filter, no pricing block, video instead
-  // of <Image>).
-  const animatedLogoItems = getAnimatedLogoAssets();
-  const tabs = [
-    ...logoCategories.map((category) => ({ slug: category.slug, label: category.name })),
-    { slug: "animated-logos", label: "Animated Logos" },
-  ];
-  panels["animated-logos"] = <AnimatedLogoPanel items={animatedLogoItems} />;
+  const tabs = logoCategories.map((category) => ({ slug: category.slug, label: category.name }));
 
   return (
     <>

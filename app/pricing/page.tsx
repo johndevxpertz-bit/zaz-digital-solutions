@@ -55,7 +55,7 @@ const pillars = [
     priceSuffix: "/mo starting",
     features: [
       "SEO, PPC, social, and Meta Ads",
-      "Starter and Growth tiers per service",
+      "Starter, Growth, and Pro tiers per service",
       "Monthly performance reporting",
     ],
   },

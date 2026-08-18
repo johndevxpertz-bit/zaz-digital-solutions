@@ -6,14 +6,14 @@ import PortfolioGrid from "@/components/ui/PortfolioGrid";
 import PricingCard from "@/components/ui/PricingCard";
 import WebsiteTypeExplorer from "@/components/sections/WebsiteTypeExplorer";
 import PageHeroVisual from "@/components/sections/PageHeroVisual";
-import { websitePortfolio } from "@/lib/data/websitePortfolio";
+import { websitePortfolio, customWebsiteShowcase } from "@/lib/data/websitePortfolio";
 import { websitePricing } from "@/lib/data/pricing";
 import { resolveMediaAsset } from "@/lib/media";
 
 export const metadata: Metadata = {
   title: "Website Design",
   description:
-    "Custom-coded and WordPress website design across seven site types — e-commerce, business, portfolio, educational, landing page, personal, and directory & listing.",
+    "Custom-coded and WordPress website design from ZAZ Digital Solutions — WordPress builds across seven site types, plus fully custom-coded websites.",
 };
 
 export default function WebsiteDesignPage() {
@@ -24,49 +24,96 @@ export default function WebsiteDesignPage() {
   const heroScreenshot =
     featuredItem && featuredResolvedSrc ? { src: featuredResolvedSrc, label: featuredItem.title } : null;
 
+  // WordPress keeps its existing 7-type tab structure and per-type pricing.
+  const wordpressGroup = websitePortfolio.find((group) => group.buildType === "wordpress")!;
+  const wordpressPricing = websitePricing.find((g) => g.buildType === "wordpress")!;
+
   const panels: Record<string, React.ReactNode> = {};
 
-  for (const group of websitePortfolio) {
-    const pricingGroup = websitePricing.find((g) => g.buildType === group.buildType);
-    if (!pricingGroup) continue;
+  for (const type of wordpressGroup.types) {
+    const pricingType = wordpressPricing.types.find((t) => t.slug === type.slug);
+    if (!pricingType) continue;
 
-    for (const type of group.types) {
-      const pricingType = pricingGroup.types.find((t) => t.slug === type.slug);
-      if (!pricingType) continue;
-
-      panels[`${group.buildType}__${type.slug}`] = (
-        <div className="grid gap-16">
-          <div>
-            <p className="text-zaz-text-secondary" style={{ fontSize: "var(--zaz-text-body-lg)" }}>
-              {type.description}
-            </p>
-            <div className="mt-8">
-              <PortfolioGrid items={type.items} columns="grid-cols-2 md:grid-cols-3" aspect="aspect-[16/10]" />
-            </div>
-          </div>
-
-          <div>
-            <p className="zaz-label mb-6">Pricing — {type.name}</p>
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {pricingType.packages.map((pkg) => (
-                <PricingCard
-                  key={pkg.tier}
-                  name={pkg.name}
-                  price={pkg.price}
-                  priceSuffix="one-time"
-                  features={pkg.features}
-                  footnote={`Delivery: ${pkg.deliveryEstimate}`}
-                  highlighted={pkg.tier === 4}
-                  ctaHref="/contact"
-                  ctaLabel="Start a project"
-                />
-              ))}
-            </div>
+    panels[`wordpress__${type.slug}`] = (
+      <div className="grid gap-16">
+        <div>
+          <p className="text-zaz-text-secondary" style={{ fontSize: "var(--zaz-text-body-lg)" }}>
+            {type.description}
+          </p>
+          <div className="mt-8">
+            <PortfolioGrid items={type.items} columns="grid-cols-2 md:grid-cols-3" aspect="aspect-[16/10]" />
           </div>
         </div>
-      );
-    }
+
+        <div>
+          <p className="zaz-label mb-6">Pricing — {type.name}</p>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {pricingType.packages.map((pkg) => (
+              <PricingCard
+                key={pkg.tier}
+                name={pkg.name}
+                price={pkg.price}
+                priceSuffix="one-time"
+                features={pkg.features}
+                footnote={`Delivery: ${pkg.deliveryEstimate}`}
+                highlighted={pkg.tier === 4}
+                ctaHref="/contact"
+                ctaLabel="Start a project"
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
   }
+
+  // Custom Website: no per-type tabs — a single section listing the real,
+  // live custom-coded projects, plus one shared 6-tier price ladder (every
+  // type carries the same Custom prices now, so any one type's packages
+  // represent the whole build type).
+  const customGroup = websitePortfolio.find((group) => group.buildType === "custom")!;
+  const customPricing = websitePricing.find((g) => g.buildType === "custom")!;
+  // "business" is the most broadly-applicable of the 7 underlying types for
+  // feature copy — every type shares the same price ladder now, so this only
+  // affects which feature bullets are shown, not the prices.
+  const customPackages = customPricing.types.find((t) => t.slug === "business")!.packages;
+
+  const customPanel = (
+    <div className="grid gap-16">
+      <div>
+        <p className="text-zaz-text-secondary" style={{ fontSize: "var(--zaz-text-body-lg)" }}>
+          Fully custom-coded — no page builder, no theme. Click a preview to view the live site.
+        </p>
+        <div className="mt-8">
+          <PortfolioGrid
+            items={customWebsiteShowcase}
+            columns="grid-cols-1 sm:grid-cols-2"
+            aspect="aspect-[16/10]"
+            showCaption
+          />
+        </div>
+      </div>
+
+      <div>
+        <p className="zaz-label mb-6">Pricing — {customGroup.name}</p>
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {customPackages.map((pkg) => (
+            <PricingCard
+              key={pkg.tier}
+              name={pkg.name}
+              price={pkg.price}
+              priceSuffix="one-time"
+              features={pkg.features}
+              footnote={`Delivery: ${pkg.deliveryEstimate}`}
+              highlighted={pkg.tier === 4}
+              ctaHref="/contact"
+              ctaLabel="Start a project"
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <>
@@ -88,8 +135,9 @@ export default function WebsiteDesignPage() {
       <section className="pb-32">
         <Container>
           <WebsiteTypeExplorer
-            types={websitePortfolio[0].types.map((type) => ({ slug: type.slug, name: type.name }))}
+            types={wordpressGroup.types.map((type) => ({ slug: type.slug, name: type.name }))}
             panels={panels}
+            customPanel={customPanel}
           />
         </Container>
       </section>

@@ -6,10 +6,9 @@ import type {
 } from "@/lib/data/types";
 
 /**
- * Reference/placeholder pricing. Base website rates are the client-supplied
- * per-page figures; everything downstream (tier page counts, feature lists,
- * logo/marketing prices) is a sensible US-market placeholder meant to be
- * refined later — all editable from this one file.
+ * Centralized pricing for all three services. Every page (homepage preview,
+ * /pricing, and each /services/* page) reads from the exports at the bottom
+ * of this file — prices are never hardcoded into components.
  */
 
 // ---------------------------------------------------------------------------
@@ -34,7 +33,6 @@ export type WebsitePackage = {
 export type WebsiteTypePricing = {
   slug: WebsiteTypeSlug;
   name: string;
-  baseRatePerPage: number;
   packages: WebsitePackage[];
 };
 
@@ -44,7 +42,7 @@ export type WebsitePricingGroup = {
   types: WebsiteTypePricing[];
 };
 
-const TIER_NAMES = ["Starter", "Essential", "Growth", "Professional", "Advanced", "Elite"];
+const TIER_NAMES = ["Mini", "Basic", "Standard", "Advanced", "Premium", "Enterprise"];
 
 const TIER_REVISIONS = [
   "1 round",
@@ -82,15 +80,11 @@ const TIER_INTEGRATIONS: string[][] = [
   ["Google Analytics", "Email marketing", "CRM", "Priority integrations of your choice"],
 ];
 
-function roundToNearest50(value: number): number {
-  return Math.round(value / 50) * 50;
-}
-
 type WebsiteTypeConfig = {
   slug: WebsiteTypeSlug;
   name: string;
   pageCounts: [number, number, number, number, number, number];
-  /** Extra type-specific bullets appended per tier, index 0 = Starter .. 5 = Elite. */
+  /** Extra type-specific bullets appended per tier, index 0 = Mini .. 5 = Enterprise. */
   featureAddons: [string[], string[], string[], string[], string[], string[]];
 };
 
@@ -188,27 +182,14 @@ const WEBSITE_TYPE_CONFIGS: WebsiteTypeConfig[] = [
   },
 ];
 
-const WORDPRESS_RATES: Record<WebsiteTypeSlug, number> = {
-  ecommerce: 350,
-  business: 400,
-  portfolio: 300,
-  educational: 400,
-  "landing-page": 200,
-  personal: 400,
-  "directory-listing": 400,
-};
+/**
+ * Fixed tier price ladder — identical across all 7 site types within a
+ * build type (client-supplied exact figures, not derived from page count).
+ */
+const WORDPRESS_TIER_PRICES = [400, 999, 1499, 1899, 2199, 2899];
+const CUSTOM_TIER_PRICES = [500, 1099, 1649, 2049, 2349, 3049];
 
-const CUSTOM_RATES: Record<WebsiteTypeSlug, number> = {
-  ecommerce: 400,
-  business: 450,
-  portfolio: 500,
-  educational: 400,
-  "landing-page": 450,
-  personal: 400,
-  "directory-listing": 700,
-};
-
-function buildWebsiteType(baseRate: number, config: WebsiteTypeConfig): WebsiteTypePricing {
+function buildWebsiteType(tierPrices: number[], config: WebsiteTypeConfig): WebsiteTypePricing {
   const packages: WebsitePackage[] = config.pageCounts.map((pages, index) => {
     const baseFeatures = [
       `Up to ${pages} page${pages > 1 ? "s" : ""}`,
@@ -222,7 +203,7 @@ function buildWebsiteType(baseRate: number, config: WebsiteTypeConfig): WebsiteT
       tier: index + 1,
       name: TIER_NAMES[index],
       pages,
-      price: roundToNearest50(pages * baseRate),
+      price: tierPrices[index],
       revisions: TIER_REVISIONS[index],
       responsive: true,
       seoLevel: TIER_SEO[index],
@@ -237,7 +218,6 @@ function buildWebsiteType(baseRate: number, config: WebsiteTypeConfig): WebsiteT
   return {
     slug: config.slug,
     name: config.name,
-    baseRatePerPage: baseRate,
     packages,
   };
 }
@@ -246,16 +226,12 @@ export const websitePricing: WebsitePricingGroup[] = [
   {
     buildType: "wordpress",
     name: "WordPress",
-    types: WEBSITE_TYPE_CONFIGS.map((config) =>
-      buildWebsiteType(WORDPRESS_RATES[config.slug], config)
-    ),
+    types: WEBSITE_TYPE_CONFIGS.map((config) => buildWebsiteType(WORDPRESS_TIER_PRICES, config)),
   },
   {
     buildType: "custom",
     name: "Custom Website",
-    types: WEBSITE_TYPE_CONFIGS.map((config) =>
-      buildWebsiteType(CUSTOM_RATES[config.slug], config)
-    ),
+    types: WEBSITE_TYPE_CONFIGS.map((config) => buildWebsiteType(CUSTOM_TIER_PRICES, config)),
   },
 ];
 
@@ -283,32 +259,77 @@ export type LogoTypePricing = {
   vectorFileAddOn: number;
 };
 
-const LOGO_TIER_NAMES = ["Basic", "Standard", "Premium"];
-const LOGO_TIER_PRICES = [249, 549, 999];
-const LOGO_TIER_CONCEPTS = [1, 2, 3];
-const LOGO_TIER_REVISIONS = ["2 rounds", "4 rounds", "Unlimited (within scope)"];
+const LOGO_TIER_NAMES = ["Starter", "Basic", "Standard", "Ultimate", "Professional", "Business Plus"];
+const LOGO_TIER_CONCEPTS = [1, 1, 2, 2, 3, 4];
+const LOGO_TIER_REVISIONS = [
+  "1 round",
+  "2 rounds",
+  "3 rounds",
+  "4 rounds",
+  "Unlimited (within scope)",
+  "Unlimited (within scope)",
+];
 const LOGO_TIER_FORMATS = [
   ["PNG", "JPG"],
+  ["PNG", "JPG"],
+  ["PNG", "JPG", "PDF"],
   ["PNG", "JPG", "PDF"],
   ["PNG", "JPG", "PDF", "SVG"],
+  ["PNG", "JPG", "PDF", "SVG"],
 ];
-const LOGO_TIER_DELIVERY = ["3-5 business days", "5-7 business days", "7-10 business days"];
+const LOGO_TIER_BRAND_GUIDE = [false, false, false, true, true, true];
+const LOGO_TIER_DELIVERY = [
+  "2-3 business days",
+  "3-4 business days",
+  "4-5 business days",
+  "5-7 business days",
+  "6-8 business days",
+  "8-10 business days",
+];
 
-function buildLogoPackages(): LogoPackage[] {
+/**
+ * Complexity tiers driving the per-category price delta over the reference
+ * baseline — simple (typography-led) categories cost least, complex
+ * (illustration-heavy) categories cost most. Baseline: [39, 59, 80, 90, 99, 130].
+ */
+const LOGO_COMPLEXITY: Record<(typeof logoCategories)[number]["slug"], "simple" | "medium" | "complex"> = {
+  wordmark: "simple",
+  lettermark: "simple",
+  "pictorial-mark": "medium",
+  "abstract-mark": "medium",
+  "combination-mark": "medium",
+  "mascot-logo": "complex",
+  emblem: "complex",
+};
+
+/**
+ * Simple category's Starter tier is set to exactly $50 (the reference
+ * baseline + $10 delta lands at $49) so the site-wide "starting at" figure
+ * is exactly $50, per spec. Every other tier/category follows the
+ * +$10 / +$15 / +$20 deltas over the reference baseline.
+ */
+const LOGO_TIER_PRICES: Record<"simple" | "medium" | "complex", number[]> = {
+  simple: [50, 69, 90, 100, 109, 140],
+  medium: [54, 74, 95, 105, 114, 145],
+  complex: [59, 79, 100, 110, 119, 150],
+};
+
+function buildLogoPackages(complexity: "simple" | "medium" | "complex"): LogoPackage[] {
+  const prices = LOGO_TIER_PRICES[complexity];
   return LOGO_TIER_NAMES.map((name, index) => ({
     tier: index + 1,
     name,
-    price: LOGO_TIER_PRICES[index],
+    price: prices[index],
     concepts: LOGO_TIER_CONCEPTS[index],
     revisions: LOGO_TIER_REVISIONS[index],
     fileFormats: LOGO_TIER_FORMATS[index],
-    brandGuide: index === 2,
+    brandGuide: LOGO_TIER_BRAND_GUIDE[index],
     deliveryEstimate: LOGO_TIER_DELIVERY[index],
     features: [
       `${LOGO_TIER_CONCEPTS[index]} initial concept${LOGO_TIER_CONCEPTS[index] > 1 ? "s" : ""}`,
       `${LOGO_TIER_REVISIONS[index]} of revisions`,
       `Final files in ${LOGO_TIER_FORMATS[index].join(", ")}`,
-      index === 2 ? "Mini brand guide (colors, type, usage)" : "Source file available on request",
+      LOGO_TIER_BRAND_GUIDE[index] ? "Mini brand guide (colors, type, usage)" : "Source file available on request",
     ],
   }));
 }
@@ -316,7 +337,7 @@ function buildLogoPackages(): LogoPackage[] {
 export const logoPricing: LogoTypePricing[] = logoCategories.map((category) => ({
   slug: category.slug,
   name: category.name,
-  packages: buildLogoPackages(),
+  packages: buildLogoPackages(LOGO_COMPLEXITY[category.slug]),
   vectorFileAddOn: 75,
 }));
 
@@ -338,14 +359,14 @@ export type MarketingServicePricing = {
   packages: MarketingPackage[];
 };
 
-const MARKETING_TIER_NAMES = ["Starter", "Growth"];
+const MARKETING_TIER_NAMES = ["Starter", "Growth", "Pro"];
 
 type MarketingConfig = {
   slug: MarketingServiceSlug;
   name: string;
   billingCycle: "monthly" | "one-time";
-  prices: [number, number];
-  features: [string[], string[]];
+  prices: [number, number, number];
+  features: [string[], string[], string[]];
 };
 
 const MARKETING_CONFIGS: MarketingConfig[] = [
@@ -353,7 +374,7 @@ const MARKETING_CONFIGS: MarketingConfig[] = [
     slug: "seo",
     name: "SEO",
     billingCycle: "monthly",
-    prices: [600, 1200],
+    prices: [199, 349, 499],
     features: [
       ["Keyword research & on-page optimization", "Technical SEO audit", "Monthly performance report"],
       [
@@ -362,23 +383,35 @@ const MARKETING_CONFIGS: MarketingConfig[] = [
         "Link-building outreach",
         "Local SEO / Google Business optimization",
       ],
+      [
+        "Everything in Growth",
+        "Dedicated SEO strategist",
+        "Expanded content production",
+        "Weekly reporting & priority support",
+      ],
     ],
   },
   {
     slug: "ppc",
     name: "PPC",
     billingCycle: "monthly",
-    prices: [500, 1000],
+    prices: [249, 399, 599],
     features: [
       ["Campaign setup & keyword targeting", "Ad copywriting", "Monthly performance report"],
       ["Everything in Starter", "A/B ad testing", "Landing page conversion review", "Bid strategy optimization"],
+      [
+        "Everything in Growth",
+        "Dedicated PPC strategist",
+        "Expanded campaign & audience coverage",
+        "Weekly reporting & priority support",
+      ],
     ],
   },
   {
     slug: "social-media",
     name: "Social Media Marketing",
     billingCycle: "monthly",
-    prices: [450, 900],
+    prices: [199, 349, 499],
     features: [
       ["Content calendar (2 platforms)", "Post design & copywriting", "Monthly performance report"],
       [
@@ -387,16 +420,28 @@ const MARKETING_CONFIGS: MarketingConfig[] = [
         "Community management",
         "Influencer/partnership outreach",
       ],
+      [
+        "Everything in Growth",
+        "Dedicated social strategist",
+        "Content calendar (all platforms)",
+        "Weekly reporting & priority support",
+      ],
     ],
   },
   {
     slug: "meta-ads",
     name: "Meta Ads",
     billingCycle: "monthly",
-    prices: [500, 1000],
+    prices: [249, 399, 599],
     features: [
       ["Campaign setup & audience targeting", "Ad creative & copywriting", "Monthly performance report"],
       ["Everything in Starter", "A/B creative testing", "Retargeting campaigns", "Conversion tracking setup"],
+      [
+        "Everything in Growth",
+        "Dedicated ads strategist",
+        "Expanded creative testing",
+        "Weekly reporting & priority support",
+      ],
     ],
   },
 ];
