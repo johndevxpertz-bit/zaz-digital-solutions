@@ -22,13 +22,13 @@ const animatedLogoTeaserItems = getAnimatedLogoAssets().slice(0, 4);
 // the same visual weight as Website Design / Animated Logo Design above it.
 const marketingTeaserServices = marketingPortfolio;
 
-// A curated sample of the real, live client websites (one WordPress + one
-// Custom Build pair, kept small so this stays a teaser rather than
-// duplicating the full /portfolio page) — shown large with the full
-// BrowserFrame treatment (via PortfolioCard, resolved here since this is a
-// server component) so a visitor immediately understands ZAZ builds real
-// websites. The rest are on /portfolio.
-const FEATURED_WEBSITE_IDS = ["wordpress-ecommerce-01", "wordpress-personal-01", "custom-business-01", "custom-ecommerce-01"];
+// A curated sample of the real, live client websites — 2 WordPress + 2
+// Custom, alternating per row in a 2x2 grid (kept small so this stays a
+// teaser rather than duplicating the full /portfolio page) — shown with the
+// full BrowserFrame treatment (via PortfolioCard, resolved here since this
+// is a server component) so a visitor immediately understands ZAZ builds
+// real websites. The rest are on /portfolio.
+const FEATURED_WEBSITE_IDS = ["wordpress-ecommerce-01", "custom-business-01", "wordpress-personal-01", "custom-ecommerce-01"];
 const realWebsiteItems = FEATURED_WEBSITE_IDS.map((id) => portfolioItems.find((item) => item.id === id))
   .filter((item): item is PortfolioCardData => Boolean(item))
   .map((item) => ({ ...item, resolvedSrc: resolveMediaAsset(item.image) }));
@@ -55,11 +55,9 @@ export default function PortfolioTeaser() {
               <Reveal>
                 <p className="zaz-label mb-6 text-zaz-muted">Website Design</p>
               </Reveal>
-              <div className="grid gap-6 md:grid-cols-3 md:gap-8">
+              <div className="grid grid-cols-2 gap-6 md:gap-8">
                 {realWebsiteItems.map((item, index) => (
-                  <div key={item.id} className={index === 0 ? "md:col-span-2" : undefined}>
-                    <PortfolioCard item={item} delay={index * 60} />
-                  </div>
+                  <PortfolioCard key={item.id} item={item} delay={index * 60} />
                 ))}
               </div>
             </div>

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { navLinks, ctaLink } from "@/lib/nav";
+import { contactInfo } from "@/lib/data/contact";
 import { lockPageScroll, unlockPageScroll } from "@/lib/animation/lenisController";
 
 type MobileNavProps = {
@@ -132,16 +133,33 @@ export default function MobileNav({ open, onClose }: MobileNavProps) {
           )
         )}
 
-        <Link
-          href={ctaLink.href}
-          onClick={onClose}
-          className={`mt-8 inline-flex items-center rounded-[var(--zaz-radius-pill)] bg-zaz-accent px-7 py-3 text-sm font-medium text-zaz-bg-deep transition-transform duration-300 hover:-translate-y-0.5 ${
-            itemMotion(navLinks.length).className
-          }`}
+        <div
+          className={`mt-8 flex flex-wrap items-center gap-4 ${itemMotion(navLinks.length).className}`}
           style={itemMotion(navLinks.length).style}
         >
-          {ctaLink.label}
-        </Link>
+          <Link
+            href={ctaLink.href}
+            onClick={onClose}
+            className="inline-flex items-center rounded-[var(--zaz-radius-pill)] bg-zaz-accent px-7 py-3 text-sm font-medium text-zaz-bg-deep transition-transform duration-300 hover:-translate-y-0.5"
+          >
+            {ctaLink.label}
+          </Link>
+          <a
+            href={`tel:${contactInfo.phoneHref}`}
+            onClick={onClose}
+            className="inline-flex items-center gap-2 rounded-[var(--zaz-radius-pill)] border border-zaz-border-strong px-6 py-3 text-sm font-medium text-zaz-text transition-colors duration-300 hover:border-zaz-accent hover:text-zaz-accent"
+          >
+            <svg aria-hidden width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M6.6 10.8C8 13.6 10.4 16 13.2 17.4L15.4 15.2C15.7 14.9 16.1 14.8 16.5 14.9C17.7 15.3 19 15.5 20.3 15.5C20.9 15.5 21.4 16 21.4 16.6V20.3C21.4 20.9 20.9 21.4 20.3 21.4C10.2 21.4 2.6 13.8 2.6 3.7C2.6 3.1 3.1 2.6 3.7 2.6H7.4C8 2.6 8.5 3.1 8.5 3.7C8.5 5 8.7 6.3 9.1 7.5C9.2 7.9 9.1 8.3 8.8 8.6L6.6 10.8Z"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinejoin="round"
+              />
+            </svg>
+            {contactInfo.phone}
+          </a>
+        </div>
       </nav>
     </div>
   );

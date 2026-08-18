@@ -393,7 +393,7 @@ const MARKETING_CONFIGS: MarketingConfig[] = [
   },
   {
     slug: "ppc",
-    name: "PPC",
+    name: "Google Ads",
     billingCycle: "monthly",
     prices: [249, 399, 599],
     features: [
@@ -401,7 +401,7 @@ const MARKETING_CONFIGS: MarketingConfig[] = [
       ["Everything in Starter", "A/B ad testing", "Landing page conversion review", "Bid strategy optimization"],
       [
         "Everything in Growth",
-        "Dedicated PPC strategist",
+        "Dedicated Google Ads strategist",
         "Expanded campaign & audience coverage",
         "Weekly reporting & priority support",
       ],

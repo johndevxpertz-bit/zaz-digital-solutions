@@ -1,16 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import Logo from "@/components/ui/Logo";
 import Container from "@/components/ui/Container";
 import Button from "@/components/ui/Button";
 import MobileNav from "@/components/layout/MobileNav";
 import { navLinks, ctaLink } from "@/lib/nav";
+import { contactInfo } from "@/lib/data/contact";
 
 export default function Navbar({ logoSrc }: { logoSrc: string | null }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  // Stable identity across re-renders (e.g. the scroll listener flipping
+  // `scrolled`) — MobileNav's scroll-lock effect depends on this prop, and a
+  // fresh closure every render would re-run that effect (unlock then
+  // re-lock) on every unrelated Navbar re-render while the menu is open.
+  const closeMobileNav = useCallback(() => setMobileOpen(false), []);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 24);
@@ -83,7 +89,21 @@ export default function Navbar({ logoSrc }: { logoSrc: string | null }) {
           )}
         </nav>
 
-        <div className="hidden md:block">
+        <div className="hidden items-center gap-4 md:flex">
+          <a
+            href={`tel:${contactInfo.phoneHref}`}
+            aria-label={`Call us at ${contactInfo.phone}`}
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-zaz-border-strong text-zaz-text-secondary transition-colors duration-200 hover:border-zaz-accent hover:text-zaz-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-zaz-accent focus-visible:outline-offset-4"
+          >
+            <svg aria-hidden width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M6.6 10.8C8 13.6 10.4 16 13.2 17.4L15.4 15.2C15.7 14.9 16.1 14.8 16.5 14.9C17.7 15.3 19 15.5 20.3 15.5C20.9 15.5 21.4 16 21.4 16.6V20.3C21.4 20.9 20.9 21.4 20.3 21.4C10.2 21.4 2.6 13.8 2.6 3.7C2.6 3.1 3.1 2.6 3.7 2.6H7.4C8 2.6 8.5 3.1 8.5 3.7C8.5 5 8.7 6.3 9.1 7.5C9.2 7.9 9.1 8.3 8.8 8.6L6.6 10.8Z"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </a>
           <Button href={ctaLink.href} variant="secondary">
             {ctaLink.label}
           </Button>
@@ -110,7 +130,7 @@ export default function Navbar({ logoSrc }: { logoSrc: string | null }) {
         </button>
       </Container>
 
-      <MobileNav open={mobileOpen} onClose={() => setMobileOpen(false)} />
+      <MobileNav open={mobileOpen} onClose={closeMobileNav} />
     </header>
   );
 }

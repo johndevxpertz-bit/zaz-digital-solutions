@@ -66,3 +66,19 @@ export function unlockPageScroll() {
   document.body.style.overflow = "";
   startSmoothScroll();
 }
+
+/**
+ * Scroll an element into view, routed through the live Lenis instance when
+ * one exists so it doesn't fight Lenis's own RAF-driven scroll position (a
+ * plain `el.scrollIntoView()` would get silently overridden the next frame).
+ * Falls back to native `scrollIntoView` when Lenis isn't running (e.g.
+ * prefers-reduced-motion, where SmoothScrollProvider never creates it) —
+ * instant in that case, since there's no smooth-scroll system to animate it.
+ */
+export function scrollToElement(el: HTMLElement, offset = 0) {
+  if (instance) {
+    instance.scrollTo(el, { offset, duration: 1 });
+  } else {
+    el.scrollIntoView({ behavior: "auto", block: "start" });
+  }
+}

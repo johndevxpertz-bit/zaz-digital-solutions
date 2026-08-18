@@ -72,7 +72,23 @@ export default function WebsiteDesignPage() {
       continue;
     }
 
-    const items = types.flatMap((type) => type.items);
+    // Real projects only — the underlying 7-type data still carries
+    // placeholder slots (for /portfolio's full grid), but Services should
+    // only ever show a card for a real, live project.
+    const items = types.flatMap((type) => type.items).filter((item) => Boolean(item.url));
+
+    if (items.length === 0) {
+      panels[`wordpress__${tab.slug}`] = (
+        <div className="flex flex-col items-center justify-center gap-2 rounded-[var(--zaz-radius)] border border-dashed border-zaz-border py-24 text-center">
+          <p className="font-heading text-lg font-semibold text-zaz-text">More work coming soon.</p>
+          <p className="max-w-sm text-sm text-zaz-text-secondary">
+            This category is being built out — check back soon to see the work here.
+          </p>
+        </div>
+      );
+      continue;
+    }
+
     // Every WordPress type now shares the same fixed price ladder, so any
     // one underlying type's packages represent the whole tab's pricing —
     // this only affects which feature bullets are shown, not the prices.
@@ -84,7 +100,7 @@ export default function WebsiteDesignPage() {
           <p className="text-zaz-text-secondary" style={{ fontSize: "var(--zaz-text-body-lg)" }}>
             {WORDPRESS_TAB_DESCRIPTIONS[tab.slug]}
           </p>
-          <div className="mt-8">
+          <div className="mt-6">
             <PortfolioGrid items={items} columns="grid-cols-2 md:grid-cols-3" aspect="aspect-[16/10]" />
           </div>
         </div>
@@ -128,7 +144,7 @@ export default function WebsiteDesignPage() {
         <p className="text-zaz-text-secondary" style={{ fontSize: "var(--zaz-text-body-lg)" }}>
           Fully custom-coded — no page builder, no theme. Click a preview to view the live site.
         </p>
-        <div className="mt-8">
+        <div className="mt-6">
           <PortfolioGrid
             items={customWebsiteShowcase}
             columns="grid-cols-1 sm:grid-cols-2"

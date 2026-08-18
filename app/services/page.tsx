@@ -32,7 +32,7 @@ const pillars = [
     name: "Digital Marketing",
     href: "/services/digital-marketing",
     description:
-      "SEO, PPC, social media, and Meta Ads built around visibility, traffic, and qualified leads.",
+      "SEO, Google Ads, social media, and Meta Ads built around visibility, traffic, and qualified leads.",
   },
 ];
 

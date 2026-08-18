@@ -25,7 +25,7 @@ export const navLinks: NavLink[] = [
       {
         label: "Digital Marketing",
         href: "/services/digital-marketing",
-        description: "SEO, PPC, social, and Meta Ads built around measurable growth.",
+        description: "SEO, Google Ads, social, and Meta Ads built around measurable growth.",
       },
     ],
   },

@@ -250,9 +250,8 @@ export const customWebsiteShowcase: CustomWebsiteShowcaseItem[] = [
   {
     id: "custom-showcase-aura-estates",
     title: "Aura Estates",
-    // No screenshot supplied yet — resolveMediaAsset returns null for this
-    // path and the grid falls back to the standard placeholder card rather
-    // than inventing one.
+    // Real homepage screenshot of the live site (captured via Playwright at
+    // 1600x1000, matching the other Custom Website preview dimensions).
     image: "portfolio/websites/custom/aura-estates-01.jpg",
     url: "http://aura-estates-demo.surge.sh",
   },

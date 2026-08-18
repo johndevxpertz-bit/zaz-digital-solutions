@@ -16,7 +16,7 @@ export type MarketingServiceEntry = {
 
 const MARKETING_SERVICE_NAMES: Record<MarketingServiceSlug, string> = {
   seo: "SEO",
-  ppc: "PPC",
+  ppc: "Google Ads",
   "social-media": "Social Media Marketing",
   "meta-ads": "Meta Ads",
 };

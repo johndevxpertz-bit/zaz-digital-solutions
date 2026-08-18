@@ -31,7 +31,7 @@ const capabilities: { name: string; description: string; href: string; icon: Ser
   },
   {
     name: "Digital Marketing",
-    description: "SEO, PPC, social, and Meta Ads built around visibility and qualified leads.",
+    description: "SEO, Google Ads, social, and Meta Ads built around visibility and qualified leads.",
     href: "/services/digital-marketing",
     icon: "bars",
   },

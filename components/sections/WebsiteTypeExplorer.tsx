@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { WebsiteBuildType } from "@/lib/data/types";
+import { scrollToElement } from "@/lib/animation/lenisController";
 
 /** Slug is a plain string, not WebsiteTypeSlug — the WordPress tabs here are
  *  presentation categories (All WordPress / Ecommerce / Informative / Author),
@@ -24,6 +25,17 @@ const BUILD_TYPES: { slug: WebsiteBuildType; label: string }[] = [
 export default function WebsiteTypeExplorer({ types, panels, customPanel }: WebsiteTypeExplorerProps) {
   const [buildType, setBuildType] = useState<WebsiteBuildType>("wordpress");
   const [activeType, setActiveType] = useState<string>(types[0]?.slug);
+  const tabsRef = useRef<HTMLDivElement>(null);
+
+  // Bring the tab row (and the panel right below it) to the top of the
+  // viewport on every tab click. Without this, switching to a shorter panel
+  // while scrolled deep into a taller one (e.g. from "All WordPress" down in
+  // its pricing section, over to "Author") leaves the new content entirely
+  // above the visible viewport — "stuck" until the visitor scrolls back up
+  // on their own. -100 offset clears the fixed h-24 navbar plus breathing room.
+  function scrollToTabs() {
+    if (tabsRef.current) scrollToElement(tabsRef.current, -100);
+  }
 
   return (
     <div>
@@ -32,7 +44,10 @@ export default function WebsiteTypeExplorer({ types, panels, customPanel }: Webs
           <button
             key={type.slug}
             type="button"
-            onClick={() => setBuildType(type.slug)}
+            onClick={() => {
+              setBuildType(type.slug);
+              scrollToTabs();
+            }}
             className={`rounded-[var(--zaz-radius-pill)] px-5 py-2 text-sm font-medium transition-all duration-200 ease-[var(--zaz-ease)] active:scale-95 ${
               buildType === type.slug
                 ? "bg-zaz-accent text-zaz-bg-deep shadow-[0_8px_20px_-10px_rgba(216,211,200,0.5)]"
@@ -46,14 +61,22 @@ export default function WebsiteTypeExplorer({ types, panels, customPanel }: Webs
 
       {buildType === "wordpress" ? (
         <>
-          <div role="tablist" aria-label="Website types" className="mt-8 flex flex-wrap gap-2 border-b border-zaz-border pb-5">
+          <div
+            ref={tabsRef}
+            role="tablist"
+            aria-label="Website types"
+            className="mt-8 flex flex-wrap gap-2 border-b border-zaz-border pb-5"
+          >
             {types.map((type) => (
               <button
                 key={type.slug}
                 type="button"
                 role="tab"
                 aria-selected={activeType === type.slug}
-                onClick={() => setActiveType(type.slug)}
+                onClick={() => {
+                  setActiveType(type.slug);
+                  scrollToTabs();
+                }}
                 className={`rounded-[var(--zaz-radius-pill)] px-4 py-2 text-sm font-medium transition-all duration-200 ease-[var(--zaz-ease)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 ${
                   activeType === type.slug
                     ? "bg-zaz-accent text-zaz-bg-deep shadow-[0_8px_20px_-10px_rgba(216,211,200,0.5)]"
@@ -65,12 +88,12 @@ export default function WebsiteTypeExplorer({ types, panels, customPanel }: Webs
             ))}
           </div>
 
-          <div key={`wordpress__${activeType}`} className="zaz-tile-enter mt-10">
+          <div key={`wordpress__${activeType}`} className="zaz-tile-enter mt-6">
             {panels[`wordpress__${activeType}`]}
           </div>
         </>
       ) : (
-        <div key="custom" className="zaz-tile-enter mt-10">
+        <div ref={tabsRef} key="custom" className="zaz-tile-enter mt-6">
           {customPanel}
         </div>
       )}

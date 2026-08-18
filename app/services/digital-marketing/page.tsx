@@ -12,7 +12,7 @@ import { marketingPricing } from "@/lib/data/pricing";
 export const metadata: Metadata = {
   title: "Digital Marketing",
   description:
-    "SEO, PPC, social media marketing, and Meta Ads from ZAZ Digital Solutions — built around visibility, traffic, and qualified leads.",
+    "SEO, Google Ads, social media marketing, and Meta Ads from ZAZ Digital Solutions — built around visibility, traffic, and qualified leads.",
 };
 
 export default function DigitalMarketingPage() {
