@@ -72,3 +72,42 @@ export function getAnimatedLogoAssets(): AnimatedLogoAsset[] {
     };
   });
 }
+
+const CLIENT_LOGOS_DIR = "portfolio/Our Clients logos";
+const SUPPORTED_IMAGE_EXTENSIONS = new Set([".png", ".jpg", ".jpeg", ".webp", ".svg"]);
+
+export type ClientLogoAsset = {
+  id: string;
+  title: string;
+  src: string;
+};
+
+/**
+ * Scans public/portfolio/Our Clients logos/ for real logo image files —
+ * same "no placeholders, no fabricated entries" rule as
+ * getAnimatedLogoAssets. Source filenames are AI-tool export names
+ * (ChatGPT/Gemini), never surfaced in the UI; alt text is generated the
+ * same way every other unlabeled asset in this codebase is (e.g. "Animated
+ * Logo 01") since no real client name is recoverable from the file itself.
+ */
+export function getClientLogos(): ClientLogoAsset[] {
+  const absDir = path.join(process.cwd(), "public", CLIENT_LOGOS_DIR);
+  if (!existsSync(absDir)) return [];
+
+  const imageFiles = walkFiles(absDir)
+    .filter((f) => SUPPORTED_IMAGE_EXTENSIONS.has(path.extname(f).toLowerCase()))
+    .sort((a, b) => a.localeCompare(b));
+
+  return imageFiles.map((absPath, index) => {
+    const relPath = path.relative(path.join(process.cwd(), "public"), absPath);
+    const urlPath = relPath.split(path.sep).join("/");
+    const number = String(index + 1).padStart(2, "0");
+    return {
+      id: `client-logo-${number}`,
+      title: `Client ${number}`,
+      // Rendered via next/image, which does its own URL encoding — stays
+      // unencoded here (see resolveMediaAsset above for why).
+      src: `/${urlPath}`,
+    };
+  });
+}

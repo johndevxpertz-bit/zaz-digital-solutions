@@ -1,6 +1,7 @@
 import Hero from "@/components/sections/Hero";
 import ServicesIntro from "@/components/sections/ServicesIntro";
 import PortfolioTeaser from "@/components/sections/PortfolioTeaser";
+import OurClients from "@/components/sections/OurClients";
 import WhyZaz from "@/components/sections/WhyZaz";
 import PricingPreview from "@/components/sections/PricingPreview";
 import FinalCta from "@/components/sections/FinalCta";
@@ -13,6 +14,8 @@ export default function Home() {
       <ServicesIntro />
       <SectionSeam />
       <PortfolioTeaser />
+      <SectionSeam />
+      <OurClients />
       <SectionSeam />
       <WhyZaz />
       <SectionSeam />
