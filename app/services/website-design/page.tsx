@@ -6,14 +6,29 @@ import PortfolioGrid from "@/components/ui/PortfolioGrid";
 import PricingCard from "@/components/ui/PricingCard";
 import WebsiteTypeExplorer from "@/components/sections/WebsiteTypeExplorer";
 import PageHeroVisual from "@/components/sections/PageHeroVisual";
-import { websitePortfolio, customWebsiteShowcase } from "@/lib/data/websitePortfolio";
+import {
+  websitePortfolio,
+  customWebsiteShowcase,
+  wordpressPortfolioCategories,
+  getWordPressPortfolioCategory,
+  type WordPressPortfolioCategorySlug,
+} from "@/lib/data/websitePortfolio";
 import { websitePricing } from "@/lib/data/pricing";
 import { resolveMediaAsset } from "@/lib/media";
 
 export const metadata: Metadata = {
   title: "Website Design",
   description:
-    "Custom-coded and WordPress website design from ZAZ Digital Solutions — WordPress builds across seven site types, plus fully custom-coded websites.",
+    "Custom-coded and WordPress website design from ZAZ Digital Solutions — WordPress builds across Ecommerce, Informative, and Author sites, plus fully custom-coded websites.",
+};
+
+type WordPressTabSlug = "all" | WordPressPortfolioCategorySlug;
+
+const WORDPRESS_TAB_DESCRIPTIONS: Record<WordPressTabSlug, string> = {
+  all: "The full range of WordPress builds — ecommerce, informative, and author sites.",
+  ecommerce: "Online stores and business sites built to sell and convert.",
+  informative: "Portfolio, educational, landing page, personal, and directory sites built to inform and engage.",
+  author: "Author and blog-led WordPress sites.",
 };
 
 export default function WebsiteDesignPage() {
@@ -24,31 +39,60 @@ export default function WebsiteDesignPage() {
   const heroScreenshot =
     featuredItem && featuredResolvedSrc ? { src: featuredResolvedSrc, label: featuredItem.title } : null;
 
-  // WordPress keeps its existing 7-type tab structure and per-type pricing.
+  // WordPress tabs: All WordPress, Ecommerce, Informative, Author — grouped
+  // from the existing 7 underlying site types via the same
+  // getWordPressPortfolioCategory mapping /portfolio already uses, so no
+  // portfolio data changes. A category with no underlying types (Author)
+  // gets an honest "coming soon" panel instead of an empty grid.
   const wordpressGroup = websitePortfolio.find((group) => group.buildType === "wordpress")!;
   const wordpressPricing = websitePricing.find((g) => g.buildType === "wordpress")!;
 
+  const wordpressTabs: { slug: WordPressTabSlug; name: string }[] = [
+    { slug: "all", name: "All WordPress" },
+    ...wordpressPortfolioCategories.map((category) => ({ slug: category.slug, name: category.name })),
+  ];
+
   const panels: Record<string, React.ReactNode> = {};
 
-  for (const type of wordpressGroup.types) {
-    const pricingType = wordpressPricing.types.find((t) => t.slug === type.slug);
-    if (!pricingType) continue;
+  for (const tab of wordpressTabs) {
+    const types =
+      tab.slug === "all"
+        ? wordpressGroup.types
+        : wordpressGroup.types.filter((type) => getWordPressPortfolioCategory(type.slug) === tab.slug);
 
-    panels[`wordpress__${type.slug}`] = (
+    if (types.length === 0) {
+      panels[`wordpress__${tab.slug}`] = (
+        <div className="flex flex-col items-center justify-center gap-2 rounded-[var(--zaz-radius)] border border-dashed border-zaz-border py-24 text-center">
+          <p className="font-heading text-lg font-semibold text-zaz-text">More work coming soon.</p>
+          <p className="max-w-sm text-sm text-zaz-text-secondary">
+            This category is being built out — check back soon to see the work here.
+          </p>
+        </div>
+      );
+      continue;
+    }
+
+    const items = types.flatMap((type) => type.items);
+    // Every WordPress type now shares the same fixed price ladder, so any
+    // one underlying type's packages represent the whole tab's pricing —
+    // this only affects which feature bullets are shown, not the prices.
+    const packages = wordpressPricing.types.find((t) => t.slug === types[0].slug)!.packages;
+
+    panels[`wordpress__${tab.slug}`] = (
       <div className="grid gap-16">
         <div>
           <p className="text-zaz-text-secondary" style={{ fontSize: "var(--zaz-text-body-lg)" }}>
-            {type.description}
+            {WORDPRESS_TAB_DESCRIPTIONS[tab.slug]}
           </p>
           <div className="mt-8">
-            <PortfolioGrid items={type.items} columns="grid-cols-2 md:grid-cols-3" aspect="aspect-[16/10]" />
+            <PortfolioGrid items={items} columns="grid-cols-2 md:grid-cols-3" aspect="aspect-[16/10]" />
           </div>
         </div>
 
         <div>
-          <p className="zaz-label mb-6">Pricing — {type.name}</p>
+          <p className="zaz-label mb-6">Pricing — {tab.name}</p>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {pricingType.packages.map((pkg) => (
+            {packages.map((pkg) => (
               <PricingCard
                 key={pkg.tier}
                 name={pkg.name}
@@ -135,7 +179,7 @@ export default function WebsiteDesignPage() {
       <section className="pb-32">
         <Container>
           <WebsiteTypeExplorer
-            types={wordpressGroup.types.map((type) => ({ slug: type.slug, name: type.name }))}
+            types={wordpressTabs}
             panels={panels}
             customPanel={customPanel}
           />

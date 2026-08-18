@@ -42,13 +42,29 @@ export default function PageLoader({ logoSrc }: { logoSrc: string | null }) {
     overlay.style.display = "flex";
     lockPageScroll();
 
-    const tl = gsap.timeline({
-      onComplete: () => {
-        sessionStorage.setItem(SESSION_KEY, "1");
-        unlockPageScroll();
-        overlay.style.display = "none";
-      },
-    });
+    // The animation timeline is driven by GSAP's rAF-based ticker, which
+    // browsers pause while the tab/window is backgrounded or not visible —
+    // e.g. a link opened in a background tab, or the window losing focus
+    // during load. If that happens mid-intro, onComplete below never fires,
+    // so nothing was ever un-stopping Lenis or clearing the overflow:hidden
+    // lock — scroll stayed dead site-wide (this persists across client-side
+    // navigation since this component lives in the root layout and never
+    // remounts). `settle()` is the single release valve: it always runs
+    // exactly once, whether the animation actually finished or this timeout
+    // had to force it, so the lock is guaranteed to lift either way.
+    let settled = false;
+    function settle() {
+      if (settled) return;
+      settled = true;
+      clearTimeout(safetyTimeout);
+      sessionStorage.setItem(SESSION_KEY, "1");
+      unlockPageScroll();
+      overlay!.style.display = "none";
+    }
+
+    const safetyTimeout = window.setTimeout(settle, 2500);
+
+    const tl = gsap.timeline({ onComplete: settle });
 
     tl.fromTo(
       glow,
@@ -67,9 +83,10 @@ export default function PageLoader({ logoSrc }: { logoSrc: string | null }) {
       // visible: the first pass kills the timeline before completion, and
       // the second pass early-returns (sessionStorage already marked
       // "shown"), so nothing else would ever reset the display.
+      clearTimeout(safetyTimeout);
       tl.kill();
       overlay.style.display = "none";
-      unlockPageScroll();
+      if (!settled) unlockPageScroll();
     };
   }, []);
 

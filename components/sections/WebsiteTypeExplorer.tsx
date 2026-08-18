@@ -1,9 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import type { WebsiteBuildType, WebsiteTypeSlug } from "@/lib/data/types";
+import type { WebsiteBuildType } from "@/lib/data/types";
 
-type TypeTab = { slug: WebsiteTypeSlug; name: string };
+/** Slug is a plain string, not WebsiteTypeSlug — the WordPress tabs here are
+ *  presentation categories (All WordPress / Ecommerce / Informative / Author),
+ *  not a 1:1 mirror of the 7 underlying pricing site types. */
+type TypeTab = { slug: string; name: string };
 
 type WebsiteTypeExplorerProps = {
   types: TypeTab[];
@@ -20,7 +23,7 @@ const BUILD_TYPES: { slug: WebsiteBuildType; label: string }[] = [
 
 export default function WebsiteTypeExplorer({ types, panels, customPanel }: WebsiteTypeExplorerProps) {
   const [buildType, setBuildType] = useState<WebsiteBuildType>("wordpress");
-  const [activeType, setActiveType] = useState<WebsiteTypeSlug>(types[0]?.slug);
+  const [activeType, setActiveType] = useState<string>(types[0]?.slug);
 
   return (
     <div>
