@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Container from "@/components/ui/Container";
 import Button from "@/components/ui/Button";
 import Reveal from "@/components/ui/Reveal";
@@ -57,6 +58,26 @@ export default function Hero() {
                 </span>
               ))}
             </div>
+          </Reveal>
+
+          <Reveal immediate delay={0.8}>
+            <a
+              href="https://www.trustpilot.com/review/zazdigitalsolutions.com?languages=all"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Read ZAZ Digital Solutions reviews on Trustpilot — opens in a new tab"
+              className="mt-4 inline-flex items-center opacity-90 transition-opacity duration-200 hover:opacity-100"
+            >
+              <span className="relative aspect-[530/246] w-36 sm:w-40">
+                <Image
+                  src="/portfolio/trustpilot/trustpilot.webp"
+                  alt="Trustpilot reviews"
+                  fill
+                  sizes="160px"
+                  className="object-contain object-left"
+                />
+              </span>
+            </a>
           </Reveal>
         </div>
 
