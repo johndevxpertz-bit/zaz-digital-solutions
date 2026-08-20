@@ -43,7 +43,7 @@ export default function OurClients() {
       </Container>
 
       <div
-        className="relative w-full overflow-hidden"
+        className="zaz-clients-marquee-wrap relative w-full overflow-hidden"
         style={{
           maskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)",
           WebkitMaskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)",
@@ -53,7 +53,7 @@ export default function OurClients() {
           {track.map((logo, index) => (
             <div
               key={`${logo.id}-${index}`}
-              className="mx-8 flex h-20 w-56 shrink-0 items-center justify-center sm:mx-16 sm:h-28 sm:w-80"
+              className="mx-5 flex h-[90px] w-[252px] shrink-0 items-center justify-center sm:mx-8 sm:h-[126px] sm:w-[360px]"
             >
               <div className="relative h-full w-full">
                 <Image
@@ -61,7 +61,7 @@ export default function OurClients() {
                   alt={logo.title}
                   fill
                   sizes="360px"
-                  className="object-contain opacity-70 transition-opacity duration-300 ease-[var(--zaz-ease)] hover:opacity-100"
+                  className="object-contain opacity-100"
                 />
               </div>
             </div>
@@ -76,6 +76,9 @@ export default function OurClients() {
         }
         .zaz-clients-marquee-track {
           animation: zaz-clients-marquee 40s linear infinite;
+        }
+        .zaz-clients-marquee-wrap:hover .zaz-clients-marquee-track {
+          animation-play-state: paused;
         }
         @media (prefers-reduced-motion: reduce) {
           .zaz-clients-marquee-track {

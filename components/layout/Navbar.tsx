@@ -115,7 +115,7 @@ export default function Navbar({ logoSrc }: { logoSrc: string | null }) {
           aria-expanded={mobileOpen}
           aria-controls="mobile-nav"
           onClick={() => setMobileOpen((value) => !value)}
-          className="relative z-50 flex h-10 w-10 flex-col items-center justify-center gap-1.5 md:hidden"
+          className="relative z-50 flex h-10 w-10 touch-manipulation flex-col items-center justify-center gap-1.5 pointer-events-auto md:hidden"
         >
           <span
             className={`h-px w-6 bg-zaz-text transition-transform duration-300 ease-[var(--zaz-ease)] ${

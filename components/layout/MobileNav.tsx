@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { navLinks, ctaLink } from "@/lib/nav";
 import { contactInfo } from "@/lib/data/contact";
@@ -14,6 +15,19 @@ type MobileNavProps = {
 export default function MobileNav({ open, onClose }: MobileNavProps) {
   const firstLinkRef = useRef<HTMLAnchorElement>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
+  // Portaled into document.body (see the JSX below for why) rather than
+  // rendered in place — `document` doesn't exist during SSR. useSyncExternalStore
+  // with a no-op subscribe is the standard way to read "is this the client,
+  // post-hydration" without the cascading-render issue a plain useState+useEffect
+  // toggle would cause: `false` on the server and on the first client render
+  // (identical output, since the panel is invisible either way at that point),
+  // `true` on every render after that — the panel opens and closes many times
+  // from then on without ever unmounting again.
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
   // Reset the accordion when the nav closes (including via the hamburger
   // toggle in Navbar, which changes `open` directly without calling
@@ -51,12 +65,31 @@ export default function MobileNav({ open, onClose }: MobileNavProps) {
     };
   }
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <div
       id="mobile-nav"
       role="dialog"
       aria-modal="true"
       aria-label="Mobile navigation"
+      // Portaled to document.body: rendered in place, this div was a child
+      // of Navbar's <header>, and *any* ancestor with a `transform`,
+      // `filter`, `backdrop-filter`, `perspective`, `contain`, or
+      // `will-change` on a compositable property becomes the containing
+      // block for a `position: fixed` descendant instead of the viewport
+      // (CSS spec, not a bug) — e.g. the header very nearly had exactly
+      // that from an earlier compositing-hint attempt on that same element.
+      // A portal makes this immune to any such property on any ancestor,
+      // present or future, rather than requiring everyone who ever touches
+      // the header (or anything above it) to remember not to add one.
+      //
+      // Lenis's own touch handling unconditionally preventDefaults touch
+      // gestures while it's stopped (which is exactly the state while this
+      // panel is open and page scroll is locked) — this is Lenis's
+      // documented opt-out, so touches inside the panel (e.g. scrolling a
+      // tall menu on a short screen) aren't swallowed by that.
+      data-lenis-prevent
       className={`fixed inset-0 z-40 flex flex-col overflow-y-auto bg-zaz-bg-deep transition-opacity duration-300 ease-[var(--zaz-ease)] md:hidden ${
         open ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
       }`}
@@ -161,6 +194,7 @@ export default function MobileNav({ open, onClose }: MobileNavProps) {
           </a>
         </div>
       </nav>
-    </div>
+    </div>,
+    document.body
   );
 }
