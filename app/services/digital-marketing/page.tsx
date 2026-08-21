@@ -4,7 +4,7 @@ import SectionHeading from "@/components/ui/SectionHeading";
 import Reveal from "@/components/ui/Reveal";
 import PricingCard from "@/components/ui/PricingCard";
 import TabPanels from "@/components/ui/TabPanels";
-import PageHeroVisual from "@/components/sections/PageHeroVisual";
+import MarketingGrowthNetwork from "@/components/sections/MarketingGrowthNetwork";
 import MarketingCaseStudyCard from "@/components/sections/MarketingCaseStudyCard";
 import { marketingPortfolio } from "@/lib/data/marketingPortfolio";
 import { marketingPricing } from "@/lib/data/pricing";
@@ -61,7 +61,7 @@ export default function DigitalMarketingPage() {
             />
           </Reveal>
           <Reveal immediate delay={0.2} variant="fade-scale" className="hidden lg:block">
-            <PageHeroVisual variant="marketing" />
+            <MarketingGrowthNetwork />
           </Reveal>
         </Container>
       </section>

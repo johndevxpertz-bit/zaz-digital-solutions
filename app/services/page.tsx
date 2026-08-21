@@ -4,7 +4,7 @@ import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
 import Reveal from "@/components/ui/Reveal";
 import TiltCard from "@/components/ui/TiltCard";
-import HeroVisual from "@/components/sections/HeroVisual";
+import ServicesMergeEmblem from "@/components/sections/ServicesMergeEmblem";
 
 export const metadata: Metadata = {
   title: "Services",
@@ -49,7 +49,7 @@ export default function ServicesPage() {
             />
           </Reveal>
           <Reveal immediate delay={0.2} variant="fade-scale" className="hidden lg:block">
-            <HeroVisual />
+            <ServicesMergeEmblem />
           </Reveal>
         </Container>
       </section>

@@ -6,7 +6,7 @@ import Button from "@/components/ui/Button";
 import AmbientGlow from "@/components/ui/AmbientGlow";
 import SectionSeam from "@/components/ui/SectionSeam";
 import ProcessSteps from "@/components/sections/ProcessSteps";
-import PageHeroVisual from "@/components/sections/PageHeroVisual";
+import AboutArmillarySphere from "@/components/sections/AboutArmillarySphere";
 import AboutBeliefs from "@/components/sections/AboutBeliefs";
 import AboutCapabilities from "@/components/sections/AboutCapabilities";
 import AboutStatement from "@/components/sections/AboutStatement";
@@ -40,7 +40,7 @@ export default function AboutPage() {
           </div>
 
           <Reveal immediate delay={0.2} variant="fade-scale" className="hidden lg:block">
-            <PageHeroVisual variant="about" />
+            <AboutArmillarySphere />
           </Reveal>
         </Container>
       </section>

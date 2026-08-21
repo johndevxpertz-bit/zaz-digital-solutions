@@ -3,7 +3,7 @@ import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
 import Reveal from "@/components/ui/Reveal";
 import PortfolioExplorer from "@/components/sections/PortfolioExplorer";
-import PageHeroVisual from "@/components/sections/PageHeroVisual";
+import PortfolioOrbitGallery from "@/components/sections/PortfolioOrbitGallery";
 import { portfolioItems, portfolioFilters } from "@/lib/data/portfolio";
 import { marketingPortfolio } from "@/lib/data/marketingPortfolio";
 import { resolveMediaAsset } from "@/lib/media";
@@ -37,7 +37,7 @@ export default function PortfolioPage() {
           </Reveal>
           {heroThumbnails.length > 0 && (
             <Reveal immediate delay={0.2} variant="fade-scale" className="hidden lg:block">
-              <PageHeroVisual variant="portfolio" portfolioThumbnails={heroThumbnails} />
+              <PortfolioOrbitGallery thumbnails={heroThumbnails} />
             </Reveal>
           )}
         </Container>

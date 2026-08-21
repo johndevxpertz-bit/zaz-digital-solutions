@@ -10,7 +10,7 @@ export default function Footer({ logoSrc }: { logoSrc: string | null }) {
     <footer className="border-t border-zaz-border bg-zaz-bg-deep">
       <Container className="grid gap-12 py-20 md:grid-cols-[1.3fr_1fr_1fr]">
         <div>
-          <Logo src={logoSrc} imgClassName="h-20 w-auto" />
+          <Logo src={logoSrc} imgClassName="h-[104px] w-auto" />
           <p className="mt-5 max-w-xs text-sm leading-relaxed text-zaz-text-secondary">
             Logo design, website design, and digital marketing — built as one connected practice.
           </p>

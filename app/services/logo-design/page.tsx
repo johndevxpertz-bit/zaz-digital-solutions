@@ -3,7 +3,7 @@ import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
 import Reveal from "@/components/ui/Reveal";
 import TabPanels from "@/components/ui/TabPanels";
-import PageHeroVisual from "@/components/sections/PageHeroVisual";
+import LogoConstructionRig from "@/components/sections/LogoConstructionRig";
 import LogoCategoryPanel from "@/components/sections/LogoCategoryPanel";
 import { logoCategories } from "@/lib/data/logoPortfolio";
 import { logoPricing } from "@/lib/data/pricing";
@@ -40,7 +40,7 @@ export default function LogoDesignPage() {
             />
           </Reveal>
           <Reveal immediate delay={0.2} variant="fade-scale" className="hidden lg:block">
-            <PageHeroVisual variant="logo" />
+            <LogoConstructionRig />
           </Reveal>
         </Container>
       </section>

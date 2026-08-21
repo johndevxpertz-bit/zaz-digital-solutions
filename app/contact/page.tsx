@@ -3,6 +3,7 @@ import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
 import Reveal from "@/components/ui/Reveal";
 import ContactForm from "@/components/sections/ContactForm";
+import ContactSignalConstellation from "@/components/sections/ContactSignalConstellation";
 import { contactInfo } from "@/lib/data/contact";
 
 export const metadata: Metadata = {
@@ -15,6 +16,7 @@ export default function ContactPage() {
   return (
     <section className="pt-40 pb-32 lg:flex lg:min-h-[100svh] lg:items-center lg:pb-24 lg:pt-32">
       <Container>
+        <ContactSignalConstellation />
         <Reveal immediate>
           <SectionHeading
             kicker="Get in touch"

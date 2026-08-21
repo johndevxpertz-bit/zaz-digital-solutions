@@ -4,11 +4,16 @@ import Button from "@/components/ui/Button";
 import Reveal from "@/components/ui/Reveal";
 import RevealText from "@/components/ui/RevealText";
 import HeroBackground from "@/components/sections/HeroBackground";
-import HomeHeroVisual from "@/components/sections/HomeHeroVisual";
+import HeroRubikCube from "@/components/sections/HeroRubikCube";
+import { resolveMediaAsset } from "@/lib/media";
 
 const pillars = ["Logo Design", "Website Design", "Digital Marketing"];
 
 export default function Hero() {
+  // Dedicated Hero asset (not the Header/Footer logo) — see HeroRubikCube's
+  // own doc comment for how the mark is cropped from it onto the cube.
+  const logoSrc = resolveMediaAsset("portfolio/logos/Logo for home hero section.png");
+
   return (
     <section className="relative flex min-h-[100svh] items-center overflow-hidden pt-28 pb-14 [@media(max-height:800px)]:pt-24 [@media(max-height:800px)]:pb-8">
       <HeroBackground />
@@ -81,8 +86,8 @@ export default function Hero() {
           </Reveal>
         </div>
 
-        <Reveal immediate delay={0.3} variant="fade-scale" className="hidden lg:block">
-          <HomeHeroVisual />
+        <Reveal immediate delay={0.3} variant="fade-scale">
+          <HeroRubikCube logoSrc={logoSrc} />
         </Reveal>
       </Container>
     </section>

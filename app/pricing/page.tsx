@@ -3,7 +3,7 @@ import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
 import Reveal from "@/components/ui/Reveal";
 import PricingCard from "@/components/ui/PricingCard";
-import HeroVisual from "@/components/sections/HeroVisual";
+import PricingValueEngine from "@/components/sections/PricingValueEngine";
 import { logoPricing, websitePricing, marketingPricing } from "@/lib/data/pricing";
 
 export const metadata: Metadata = {
@@ -74,7 +74,7 @@ export default function PricingPage() {
             />
           </Reveal>
           <Reveal immediate delay={0.2} variant="fade-scale" className="hidden lg:block">
-            <HeroVisual />
+            <PricingValueEngine />
           </Reveal>
         </Container>
       </section>

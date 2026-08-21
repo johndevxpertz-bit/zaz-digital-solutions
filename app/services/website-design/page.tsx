@@ -5,7 +5,7 @@ import Reveal from "@/components/ui/Reveal";
 import PortfolioGrid from "@/components/ui/PortfolioGrid";
 import PricingCard from "@/components/ui/PricingCard";
 import WebsiteTypeExplorer from "@/components/sections/WebsiteTypeExplorer";
-import PageHeroVisual from "@/components/sections/PageHeroVisual";
+import WebsiteLayerStack from "@/components/sections/WebsiteLayerStack";
 import {
   websitePortfolio,
   customWebsiteShowcase,
@@ -187,7 +187,7 @@ export default function WebsiteDesignPage() {
             />
           </Reveal>
           <Reveal immediate delay={0.2} variant="fade-scale" className="hidden lg:block">
-            <PageHeroVisual variant="website" websiteScreenshot={heroScreenshot} />
+            <WebsiteLayerStack websiteScreenshot={heroScreenshot} />
           </Reveal>
         </Container>
       </section>

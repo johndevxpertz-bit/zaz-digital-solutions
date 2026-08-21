@@ -34,7 +34,7 @@ export default function Navbar({ logoSrc }: { logoSrc: string | null }) {
       }`}
     >
       <Container className="flex h-24 items-center justify-between">
-        <Logo src={logoSrc} />
+        <Logo src={logoSrc} imgClassName="h-[70.4px] w-auto" />
 
         <nav className="hidden items-center gap-9 md:flex">
           {navLinks.map((link) =>
