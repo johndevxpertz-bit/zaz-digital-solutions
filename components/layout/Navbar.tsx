@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Logo from "@/components/ui/Logo";
 import Container from "@/components/ui/Container";
@@ -12,6 +12,27 @@ import { contactInfo } from "@/lib/data/contact";
 export default function Navbar({ logoSrc }: { logoSrc: string | null }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  // The desktop "Services" dropdown used to be driven purely by CSS
+  // `:hover`/`:focus-within` — no single source of truth for "is it open".
+  // That's exactly why it misbehaved: clicking the trigger focuses it, and
+  // `:focus-within` then keeps the panel visible regardless of the mouse
+  // leaving, with no click handler to ever toggle it closed again. One
+  // piece of state, updated by hover, focus, click, and outside-click,
+  // replaces all of that with a single deterministic open/closed value.
+  const [servicesOpen, setServicesOpen] = useState(false);
+  const servicesRef = useRef<HTMLDivElement>(null);
+
+  // Outside click closes the dropdown regardless of how it was opened.
+  useEffect(() => {
+    if (!servicesOpen) return;
+    function handlePointerDown(event: PointerEvent) {
+      if (!servicesRef.current?.contains(event.target as Node)) {
+        setServicesOpen(false);
+      }
+    }
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [servicesOpen]);
   // Stable identity across re-renders (e.g. the scroll listener flipping
   // `scrolled`) — MobileNav's scroll-lock effect depends on this prop, and a
   // fresh closure every render would re-run that effect (unlock then
@@ -39,9 +60,27 @@ export default function Navbar({ logoSrc }: { logoSrc: string | null }) {
         <nav className="hidden items-center gap-9 md:flex">
           {navLinks.map((link) =>
             link.children ? (
-              <div key={link.href} className="group relative">
+              <div
+                key={link.href}
+                ref={servicesRef}
+                className="group relative"
+                onMouseEnter={() => setServicesOpen(true)}
+                onMouseLeave={() => setServicesOpen(false)}
+                onFocus={() => setServicesOpen(true)}
+                onBlur={(event) => {
+                  // Only close when focus leaves the whole trigger+panel
+                  // region — not when it merely moves from the trigger to a
+                  // link inside the dropdown (still a descendant).
+                  if (!event.currentTarget.contains(event.relatedTarget as Node)) {
+                    setServicesOpen(false);
+                  }
+                }}
+              >
                 <Link
                   href={link.href}
+                  aria-haspopup="true"
+                  aria-expanded={servicesOpen}
+                  onClick={() => setServicesOpen(false)}
                   className="flex items-center gap-1.5 text-sm font-medium text-zaz-text-secondary transition-colors duration-200 hover:text-zaz-text"
                 >
                   {link.label}
@@ -51,20 +90,27 @@ export default function Navbar({ logoSrc }: { logoSrc: string | null }) {
                     height="6"
                     viewBox="0 0 9 6"
                     fill="none"
-                    className="mt-px transition-transform duration-200 ease-[var(--zaz-ease)] group-hover:-rotate-180 group-focus-within:-rotate-180"
+                    className={`mt-px transition-transform duration-200 ease-[var(--zaz-ease)] ${servicesOpen ? "-rotate-180" : ""}`}
                   >
                     <path d="M1 1L4.5 5L8 1" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
                   </svg>
                 </Link>
 
-                <div className="invisible absolute left-1/2 top-full w-[420px] -translate-x-1/2 translate-y-1 pt-4 opacity-0 transition-all duration-300 ease-[var(--zaz-ease)] group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100">
+                <div
+                  className={`absolute left-1/2 top-full w-[420px] -translate-x-1/2 pt-4 transition-all duration-300 ease-[var(--zaz-ease)] ${
+                    servicesOpen ? "visible translate-y-0 opacity-100" : "invisible translate-y-1 opacity-0"
+                  }`}
+                >
                   <div className="grid gap-1 rounded-[var(--zaz-radius)] border border-zaz-border bg-zaz-surface/95 p-3 shadow-2xl shadow-black/40 backdrop-blur-md">
                     {link.children.map((child, childIndex) => (
                       <Link
                         key={child.href}
                         href={child.href}
-                        className="block translate-y-1 rounded-[var(--zaz-radius-sm)] p-3 opacity-0 transition-all duration-300 ease-[var(--zaz-ease)] hover:bg-zaz-surface-alt group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100"
-                        style={{ transitionDelay: `${childIndex * 50}ms` }}
+                        onClick={() => setServicesOpen(false)}
+                        className={`block rounded-[var(--zaz-radius-sm)] p-3 transition-all duration-300 ease-[var(--zaz-ease)] hover:bg-zaz-surface-alt ${
+                          servicesOpen ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0"
+                        }`}
+                        style={{ transitionDelay: servicesOpen ? `${childIndex * 50}ms` : "0ms" }}
                       >
                         <span className="block text-sm font-medium text-zaz-text">{child.label}</span>
                         {child.description && (

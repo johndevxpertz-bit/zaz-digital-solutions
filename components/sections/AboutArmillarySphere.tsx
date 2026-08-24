@@ -41,7 +41,7 @@ function OrbitBody({ kind }: { kind: (typeof OBJECTS)[number]["kind"] }) {
   switch (kind) {
     case "browser":
       return (
-        <div className="h-full w-full rounded-[4px] border border-zaz-accent-dim bg-zaz-surface-alt shadow-lg shadow-black/40">
+        <div className="h-full w-full rounded-[4px] border border-zaz-accent bg-zaz-surface-alt shadow-lg shadow-black/25">
           <div className="flex h-[30%] items-center gap-[2px] border-b border-zaz-border px-[3px]">
             <span className="h-[3px] w-[3px] rounded-full bg-zaz-accent-dim" />
             <span className="h-[3px] w-[3px] rounded-full bg-zaz-accent-dim opacity-60" />
@@ -51,7 +51,7 @@ function OrbitBody({ kind }: { kind: (typeof OBJECTS)[number]["kind"] }) {
     case "logo":
       return (
         <div
-          className="h-full w-full rotate-45 rounded-[3px] border-2 border-zaz-accent bg-zaz-bg-deep shadow-lg shadow-black/40"
+          className="h-full w-full rotate-45 rounded-[3px] border-2 border-zaz-accent bg-zaz-bg-deep shadow-lg shadow-black/25"
           style={{ boxShadow: "0 0 10px color-mix(in srgb, var(--zaz-accent) 45%, transparent)" }}
         />
       );
@@ -59,13 +59,13 @@ function OrbitBody({ kind }: { kind: (typeof OBJECTS)[number]["kind"] }) {
       return (
         <div className="grid h-full w-full grid-cols-2 grid-rows-2 gap-[2px]">
           {Array.from({ length: 4 }).map((_, i) => (
-            <span key={i} className="rounded-[1px] border border-zaz-accent-dim" style={{ opacity: 0.5 + (i % 2) * 0.3 }} />
+            <span key={i} className="rounded-[1px] border border-zaz-accent" style={{ opacity: 0.65 + (i % 2) * 0.3 }} />
           ))}
         </div>
       );
     case "data":
       return (
-        <div className="flex h-full w-full items-end gap-[2px] rounded-[3px] border border-zaz-border bg-zaz-surface-alt/80 px-[3px] pb-[2px] shadow-lg shadow-black/40">
+        <div className="flex h-full w-full items-end gap-[2px] rounded-[3px] border border-zaz-accent-dim bg-zaz-surface-alt/80 px-[3px] pb-[2px] shadow-lg shadow-black/25">
           {[45, 75, 60, 90].map((h, i) => (
             <span key={i} className="flex-1 rounded-[1px] bg-zaz-accent" style={{ height: `${h}%`, opacity: 0.5 + i * 0.1 }} />
           ))}
@@ -74,8 +74,11 @@ function OrbitBody({ kind }: { kind: (typeof OBJECTS)[number]["kind"] }) {
     case "ui":
       return (
         <div
-          className="h-full w-full rounded-full border border-zaz-accent-dim bg-zaz-surface-alt shadow-lg shadow-black/40"
-          style={{ background: "linear-gradient(140deg, var(--zaz-surface-alt), var(--zaz-bg-deep))" }}
+          className="h-full w-full rounded-full border border-zaz-accent bg-zaz-surface-alt shadow-lg shadow-black/25"
+          style={{
+            background:
+              "radial-gradient(circle at 32% 28%, color-mix(in srgb, var(--zaz-accent) 35%, transparent) 0%, transparent 62%), linear-gradient(140deg, var(--zaz-surface-alt), var(--zaz-bg-deep))",
+          }}
         />
       );
     case "glow":
@@ -152,9 +155,9 @@ export default function AboutArmillarySphere() {
               x,
               z,
               scale: (0.68 + depth * 0.55) * (isHovered ? 1.35 : 1),
-              opacity: 0.5 + depth * 0.5,
+              opacity: 0.65 + depth * 0.35,
               zIndex: Math.round(depth * 100) + 10,
-              filter: `brightness(${0.7 + depth * 0.45})${isHovered ? " drop-shadow(0 0 6px var(--zaz-accent))" : ""}`,
+              filter: `brightness(${0.88 + depth * 0.42})${isHovered ? " drop-shadow(0 0 6px var(--zaz-accent))" : ""}`,
             });
           },
         });
@@ -243,11 +246,13 @@ export default function AboutArmillarySphere() {
           className="relative flex h-full w-full cursor-grab touch-pan-y items-center justify-center active:cursor-grabbing"
           style={{ transformStyle: "preserve-3d" }}
         >
-          {/* Ambient glow behind the whole system */}
+          {/* Ambient glow behind the whole system — soft fill light so the
+              orbit bodies and rings read clearly rather than sitting in
+              shadow against the dark backdrop. */}
           <div
             aria-hidden
-            className="pointer-events-none absolute h-[70%] w-[70%] rounded-full"
-            style={{ background: "radial-gradient(circle at 32% 30%, color-mix(in srgb, var(--zaz-accent) 18%, transparent) 0%, transparent 68%)" }}
+            className="pointer-events-none absolute h-[78%] w-[78%] rounded-full"
+            style={{ background: "radial-gradient(circle at 32% 30%, color-mix(in srgb, var(--zaz-accent) 30%, transparent) 0%, transparent 72%)" }}
           />
 
           {/* Orbit bodies */}
@@ -298,34 +303,40 @@ export default function AboutArmillarySphere() {
                 <div
                   ref={highlightRef}
                   aria-hidden
-                  className="absolute -inset-[8%] rounded-full opacity-70"
+                  className="absolute -inset-[8%] rounded-full opacity-90"
                   style={{
                     background:
-                      "conic-gradient(from 0deg, transparent 0%, color-mix(in srgb, var(--zaz-accent) 70%, transparent) 4%, transparent 10%)",
+                      "conic-gradient(from 0deg, transparent 0%, color-mix(in srgb, var(--zaz-accent) 85%, transparent) 4%, transparent 13%)",
                   }}
                 />
               )}
             </div>
           ))}
 
-          {/* Core: layered geometric ZAZ nucleus */}
+          {/* Core: layered geometric ZAZ nucleus — the scene's key light
+              source, so its glow and the nucleus layers around it carry a
+              real highlight rather than sitting as flat dark shapes. */}
           <div
             ref={coreGlowRef}
             aria-hidden
-            className="pointer-events-none absolute h-[30%] w-[30%] rounded-full opacity-70"
-            style={{ background: "radial-gradient(circle, color-mix(in srgb, var(--zaz-accent) 55%, transparent) 0%, transparent 72%)" }}
+            className="pointer-events-none absolute h-[34%] w-[34%] rounded-full opacity-80"
+            style={{ background: "radial-gradient(circle, color-mix(in srgb, var(--zaz-accent) 68%, transparent) 0%, transparent 72%)" }}
           />
           <div
             ref={coreInnerRef}
             aria-hidden
-            className="pointer-events-none absolute h-[19%] w-[19%] rounded-[6px] border border-zaz-accent-dim"
-            style={{ transformStyle: "preserve-3d", background: "linear-gradient(160deg, var(--zaz-surface-alt) 0%, var(--zaz-bg-deep) 100%)" }}
+            className="pointer-events-none absolute h-[19%] w-[19%] rounded-[6px] border border-zaz-accent"
+            style={{
+              transformStyle: "preserve-3d",
+              background:
+                "radial-gradient(circle at 28% 24%, color-mix(in srgb, var(--zaz-accent) 40%, transparent) 0%, transparent 60%), linear-gradient(160deg, var(--zaz-surface-alt) 0%, var(--zaz-bg-deep) 100%)",
+            }}
           />
           <div
-            className="relative z-10 flex h-[17%] w-[17%] items-center justify-center rounded-[5px] border border-zaz-accent-dim shadow-2xl shadow-black/50"
+            className="relative z-10 flex h-[17%] w-[17%] items-center justify-center rounded-[5px] border border-zaz-accent shadow-2xl shadow-black/35"
             style={{
               background:
-                "radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--zaz-accent) 35%, transparent) 0%, transparent 70%), linear-gradient(160deg, var(--zaz-surface-alt) 0%, var(--zaz-bg-deep) 100%)",
+                "radial-gradient(circle at 32% 26%, color-mix(in srgb, var(--zaz-accent) 50%, transparent) 0%, transparent 68%), linear-gradient(160deg, var(--zaz-surface-alt) 0%, var(--zaz-bg-deep) 100%)",
             }}
           >
             <span aria-hidden className="font-heading font-semibold text-zaz-accent" style={{ fontSize: "clamp(1.1rem, 2.6vw, 1.5rem)" }}>

@@ -111,6 +111,24 @@ export default function MarketingGrowthNetwork() {
 
     registerGsap();
 
+    // Snapshot the node refs into a stable, fully-non-null array of the
+    // actual DOM elements (the guard above just confirmed none are null) —
+    // not a copy of `nodeRefs.current` itself, but the real SVGCircleElement
+    // objects it currently holds. The tweens below run forever (repeat: -1)
+    // via onUpdate callbacks that keep firing for as long as this effect's
+    // gsap.context is alive. React can null out `nodeRefs.current` entries
+    // synchronously (ref detachment happens in the commit phase) before this
+    // effect's cleanup — a passive effect, which runs later — ever calls
+    // ctx.revert() to actually stop those tweens; this is exactly what React
+    // Strict Mode's dev-only mount→cleanup→mount cycle does. Reading `nodes[i]`
+    // (an alias for that same mutable, nullable array) from inside the
+    // still-ticking onUpdate hit that null in the gap between the two,
+    // throwing on `.setAttribute`. Capturing the elements once, into an
+    // array nothing else ever mutates, makes the closures below hold the
+    // real DOM nodes directly — immune to the ref array being cleared out
+    // from under them.
+    const nodeEls = nodes.filter((n): n is SVGCircleElement => n !== null);
+
     const ctx = gsap.context(() => {
       // Live position state per node — the single source of truth the
       // circles, connecting lines, and the growth-fill area all read from on
@@ -120,8 +138,8 @@ export default function MarketingGrowthNetwork() {
 
       function applyPositions() {
         for (let i = 0; i < NODE_COUNT; i++) {
-          nodes[i]!.setAttribute("cx", String(pos[i].x));
-          nodes[i]!.setAttribute("cy", String(pos[i].y));
+          nodeEls[i].setAttribute("cx", String(pos[i].x));
+          nodeEls[i].setAttribute("cy", String(pos[i].y));
         }
         for (let i = 0; i < NODE_COUNT - 1; i++) {
           const line = lines[i];
