@@ -57,7 +57,7 @@ export default function PricingPreview() {
                 features={pillar.features}
                 highlighted={pillar.highlighted}
                 ctaHref={pillar.href}
-                ctaLabel="Learn more"
+                ctaLabel="View full pricing"
               />
             </Reveal>
           ))}

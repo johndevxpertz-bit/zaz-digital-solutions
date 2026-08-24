@@ -44,6 +44,16 @@ export default function DigitalMarketingPage() {
               />
             ))}
           </div>
+          <p className="mt-5 text-sm text-zaz-text-secondary">
+            Pricing above is the management fee for running and optimizing the campaign — any ad spend paid
+            directly to Google or Meta is separate and set with you before launch.
+          </p>
+          <p className="mt-3 text-sm text-zaz-text-secondary">
+            Need something different?{" "}
+            <a href="/contact" className="text-zaz-accent underline underline-offset-4 hover:text-zaz-text">
+              Get a custom quote.
+            </a>
+          </p>
         </div>
       </div>
     );

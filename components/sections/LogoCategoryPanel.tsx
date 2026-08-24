@@ -130,6 +130,12 @@ export default function LogoCategoryPanel({ category, pricing, items }: LogoCate
         <p className="mt-5 text-sm text-zaz-text-secondary">
           Vector source file (AI/EPS) available as an add-on for ${pricing.vectorFileAddOn}.
         </p>
+        <p className="mt-3 text-sm text-zaz-text-secondary">
+          Need something different?{" "}
+          <a href="/contact" className="text-zaz-accent underline underline-offset-4 hover:text-zaz-text">
+            Get a custom quote.
+          </a>
+        </p>
       </div>
 
       <ImageLightbox

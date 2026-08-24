@@ -39,6 +39,19 @@ export default function WebsiteTypeExplorer({ types, panels, customPanel }: Webs
 
   return (
     <div>
+      <div className="mb-6 grid gap-4 sm:grid-cols-2">
+        <p className="text-sm text-zaz-text-secondary">
+          <span className="font-medium text-zaz-text">Need a standard business website?</span> WordPress
+          is the fastest, most affordable way to get a professional site live — built on an
+          industry-standard CMS you can update yourself.
+        </p>
+        <p className="text-sm text-zaz-text-secondary">
+          <span className="font-medium text-zaz-text">Need a fully custom website?</span> Custom-Coded
+          means no page builder, no theme — built line-by-line for unique interactions and complete
+          control.
+        </p>
+      </div>
+
       <div className="inline-flex rounded-[var(--zaz-radius-pill)] border border-zaz-border-strong p-1">
         {BUILD_TYPES.map((type) => (
           <button

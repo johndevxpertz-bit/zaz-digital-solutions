@@ -81,7 +81,16 @@ export async function submitContactForm(
     };
   }
 
-  const toEmail = process.env.CONTACT_TO_EMAIL || contactInfo.email;
+  // Every submission notifies both the primary support inbox and the
+  // secondary recipient — always, not conditionally on an env var being set
+  // correctly. CONTACT_TO_EMAIL (comma-separated) can add further recipients
+  // on top of these two, but can never remove either of them.
+  const REQUIRED_RECIPIENTS = [contactInfo.email, "maazqureshi632@gmail.com"];
+  const extraRecipients = (process.env.CONTACT_TO_EMAIL ?? "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+  const toEmail = Array.from(new Set([...REQUIRED_RECIPIENTS, ...extraRecipients]));
   const fromEmail = process.env.CONTACT_FROM_EMAIL || "ZAZ Digital Solutions Website <onboarding@resend.dev>";
 
   const bodyLines = [
