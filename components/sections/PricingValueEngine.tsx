@@ -40,8 +40,11 @@ function satelliteTransform(angleDeg: number, radius: number, scale: number) {
 export default function PricingValueEngine() {
   const stageRef = useRef<HTMLDivElement>(null);
   const coreRef = useRef<HTMLDivElement>(null);
+  const coreGlowRef = useRef<HTMLDivElement>(null);
+  const coreInnerRef = useRef<HTMLDivElement>(null);
   const satRefs = useRef<(HTMLDivElement | null)[]>([]);
   const spokeRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const pulseRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const labelRefs = useRef<(HTMLSpanElement | null)[]>([]);
 
   useEffect(() => {
@@ -79,7 +82,27 @@ export default function PricingValueEngine() {
       gsap.to(core, { rotationY: 360, duration: 16, ease: "none", repeat: -1 });
       gsap.to(core, { scale: 1.06, duration: 2.6, ease: "sine.inOut", yoyo: true, repeat: -1 });
 
+      function sendPulse(i: number) {
+        const pulse = pulseRefs.current[i];
+        if (!pulse) return;
+        gsap.set(pulse, { left: "0%", opacity: 1 });
+        gsap.to(pulse, {
+          left: "100%",
+          duration: 0.55,
+          ease: "power1.in",
+          onComplete: () => {
+            gsap.to(pulse, { opacity: 0, duration: 0.15 });
+            // Energy arrives — the core visibly reacts rather than the
+            // satellite simply sliding to the center.
+            if (coreRef.current) gsap.to(coreRef.current, { scale: 1.16, duration: 0.16, ease: "power1.out", yoyo: true, repeat: 1 });
+            if (coreInnerRef.current) gsap.to(coreInnerRef.current, { rotationZ: "+=35", duration: 0.5, ease: "power2.out" });
+            if (coreGlowRef.current) gsap.fromTo(coreGlowRef.current, { opacity: 0.9 }, { opacity: 0, duration: 0.6, ease: "power1.out" });
+          },
+        });
+      }
+
       function dock(i: number) {
+        sendPulse(i);
         gsap.to(sat[i], { radius: DOCK_RADIUS, scale: 1.35, opacity: 1, duration: 0.9, ease: "power2.inOut", onUpdate: render });
         sat.forEach((s, j) => {
           if (j === i) return;
@@ -166,20 +189,41 @@ export default function PricingValueEngine() {
             aria-hidden
             className="absolute left-1/2 top-1/2 h-px origin-left bg-zaz-border-strong"
             style={{ width: RING_RADIUS, transform: `rotate(${(360 / SATELLITES.length) * i}deg)` }}
-          />
+          >
+            <span
+              ref={(el) => {
+                pulseRefs.current[i] = el;
+              }}
+              aria-hidden
+              className="absolute top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-zaz-accent opacity-0"
+              style={{ boxShadow: "0 0 6px 1px var(--zaz-accent)" }}
+            />
+          </div>
         ))}
 
         {/* Core */}
         <div
           ref={coreRef}
-          className="relative z-20 flex h-[30%] w-[30%] items-center justify-center rounded-[var(--zaz-radius)] border border-zaz-accent-dim shadow-2xl shadow-black/50"
+          className="relative z-20 flex h-[30%] w-[30%] items-center justify-center overflow-hidden rounded-[var(--zaz-radius)] border border-zaz-accent-dim shadow-2xl shadow-black/50"
           style={{
             background:
               "radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--zaz-accent) 30%, transparent) 0%, transparent 70%), linear-gradient(160deg, var(--zaz-surface-alt) 0%, var(--zaz-bg-deep) 100%)",
             transformStyle: "preserve-3d",
           }}
         >
-          <span aria-hidden className="font-heading font-semibold text-zaz-accent" style={{ fontSize: "clamp(1.75rem, 4vw, 2.5rem)" }}>
+          <div
+            ref={coreGlowRef}
+            aria-hidden
+            className="pointer-events-none absolute inset-0 opacity-0"
+            style={{ background: "radial-gradient(circle, color-mix(in srgb, var(--zaz-accent) 65%, transparent) 0%, transparent 75%)" }}
+          />
+          <div
+            ref={coreInnerRef}
+            aria-hidden
+            className="pointer-events-none absolute h-[70%] w-[70%] rounded-[3px] border border-zaz-accent-dim opacity-40"
+            style={{ transformStyle: "preserve-3d" }}
+          />
+          <span aria-hidden className="relative font-heading font-semibold text-zaz-accent" style={{ fontSize: "clamp(1.75rem, 4vw, 2.5rem)" }}>
             Z
           </span>
         </div>

@@ -9,25 +9,41 @@ const NODES = [
   { x: 112, y: 12 },
 ];
 
+function lerp(a: number, b: number, t: number) {
+  return a + (b - a) * t;
+}
+
+// Quadratic-bezier point — used so an occasional "reroute" reads as a
+// genuinely different path (an arc) rather than the same straight line.
+function bezier(p0: { x: number; y: number }, c: { x: number; y: number }, p1: { x: number; y: number }, t: number) {
+  const x = (1 - t) * (1 - t) * p0.x + 2 * (1 - t) * t * c.x + t * t * p1.x;
+  const y = (1 - t) * (1 - t) * p0.y + 2 * (1 - t) * t * c.y + t * t * p1.y;
+  return { x, y };
+}
+
 /**
- * Contact hero accent: small and restrained, per the brief — a short
- * constellation of 2-3 nodes with light pulses continuously traveling along
- * the connecting lines between them, a literal "message being sent."
- * Nodes drift very slightly toward the cursor within a small radius. Sits
- * above the kicker; never competes with the form below it.
+ * Contact hero accent: small and restrained, per the brief — a miniature
+ * transmission system rather than generic nodes-and-lines. A single signal
+ * packet travels sequentially from node to node and back, brightening and
+ * briefly pulsing each node as it arrives (a literal "message received"),
+ * with the connecting lines dimly present at rest. Every couple of trips
+ * the packet takes a curved alternate route instead of the straight line —
+ * a subtle "reroute" — before returning to the direct path. Nodes drift
+ * very slightly toward the cursor within a small radius. Sits above the
+ * kicker; never competes with the form below it.
  */
 export default function ContactSignalConstellation() {
   const wrapRef = useRef<HTMLDivElement>(null);
   const nodeRefs = useRef<(SVGCircleElement | null)[]>([]);
   const lineRefs = useRef<(SVGLineElement | null)[]>([]);
-  const pulseRefs = useRef<(SVGCircleElement | null)[]>([]);
+  const packetRef = useRef<SVGCircleElement>(null);
 
   useEffect(() => {
     const wrap = wrapRef.current;
     const nodes = nodeRefs.current;
     const lines = lineRefs.current;
-    const pulses = pulseRefs.current;
-    if (!wrap || nodes.some((n) => !n)) return;
+    const packet = packetRef.current;
+    if (!wrap || nodes.some((n) => !n) || !packet) return;
     if (prefersReducedMotion()) return;
 
     registerGsap();
@@ -56,23 +72,44 @@ export default function ContactSignalConstellation() {
         gsap.to(p, { y: `+=${5 + i}`, duration: 2.6 + i * 0.4, ease: "sine.inOut", yoyo: true, repeat: -1, onUpdate: apply });
       });
 
-      // Continuous pulses traveling along each connection.
-      lines.forEach((line, i) => {
-        const pulse = pulses[i];
-        if (!line || !pulse) return;
-        const t = { v: 0 };
-        gsap.to(t, {
-          v: 1,
-          duration: 1.3,
-          ease: "power1.inOut",
-          repeat: -1,
-          delay: i * 0.35,
-          onUpdate: () => {
-            pulse.setAttribute("cx", String(pos[i].x + (pos[i + 1].x - pos[i].x) * t.v));
-            pulse.setAttribute("cy", String(pos[i].y + (pos[i + 1].y - pos[i].y) * t.v));
-          },
-        });
-      });
+      function arrive(i: number) {
+        gsap.fromTo(nodes[i], { attr: { r: 2.5 } }, { attr: { r: 4.2 }, duration: 0.18, ease: "power1.out", yoyo: true, repeat: 1 });
+      }
+
+      // A single packet travels the chain sequentially — forward, then
+      // back — rather than independent simultaneous pulses per segment.
+      // Every third pass it curves through a control point instead of
+      // going straight: a subtle, occasional reroute.
+      let tripCount = 0;
+      const cycle = gsap.timeline({ repeat: -1, delay: 0.6 });
+      for (let dir = 0; dir < 2; dir++) {
+        const order = dir === 0 ? [0, 1, 2] : [2, 1, 0];
+        for (let step = 0; step < order.length - 1; step++) {
+          const fromIdx = order[step];
+          const toIdx = order[step + 1];
+          cycle.call(() => {
+            tripCount += 1;
+            const rerouted = tripCount % 3 === 0;
+            const p0 = pos[fromIdx];
+            const p1 = pos[toIdx];
+            const mid = { x: (p0.x + p1.x) / 2, y: rerouted ? (p0.y + p1.y) / 2 - 14 : (p0.y + p1.y) / 2 };
+            const t = { v: 0 };
+            gsap.to(t, {
+              v: 1,
+              duration: 0.85,
+              ease: "power1.inOut",
+              onUpdate: () => {
+                const point = rerouted ? bezier(p0, mid, p1, t.v) : { x: lerp(p0.x, p1.x, t.v), y: lerp(p0.y, p1.y, t.v) };
+                packet.setAttribute("cx", String(point.x));
+                packet.setAttribute("cy", String(point.y));
+              },
+              onComplete: () => arrive(toIdx),
+            });
+          });
+          cycle.to({}, { duration: 0.85 });
+        }
+        cycle.to({}, { duration: 0.5 });
+      }
 
       // Cursor proximity: nodes drift very slightly toward the pointer.
       function onPointerMove(e: PointerEvent) {
@@ -115,19 +152,7 @@ export default function ContactSignalConstellation() {
             strokeWidth="1"
           />
         ))}
-        {NODES.slice(0, -1).map((_, i) => (
-          <circle
-            key={`pulse-${i}`}
-            ref={(el) => {
-              pulseRefs.current[i] = el;
-            }}
-            cx={NODES[i].x}
-            cy={NODES[i].y}
-            r="2"
-            fill="var(--zaz-accent)"
-            opacity="0.9"
-          />
-        ))}
+        <circle ref={packetRef} cx={NODES[0].x} cy={NODES[0].y} r="2.2" fill="var(--zaz-accent)" opacity="0.95" />
         {NODES.map((n, i) => (
           <circle
             key={`node-${i}`}

@@ -3,7 +3,7 @@ import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
 import Reveal from "@/components/ui/Reveal";
 import TabPanels from "@/components/ui/TabPanels";
-import LogoConstructionRig from "@/components/sections/LogoConstructionRig";
+import LogoIdentityLab from "@/components/sections/LogoIdentityLab";
 import LogoCategoryPanel from "@/components/sections/LogoCategoryPanel";
 import { logoCategories } from "@/lib/data/logoPortfolio";
 import { logoPricing } from "@/lib/data/pricing";
@@ -28,6 +28,15 @@ export default function LogoDesignPage() {
 
   const tabs = logoCategories.map((category) => ({ slug: category.slug, label: category.name }));
 
+  // A small, diverse pick of real client logo work for the hero's identity
+  // lab — one item per category (so the mix spans styles, not four from the
+  // same category), same real-assets-only rule as the category panels below.
+  const heroLogos = logoCategories
+    .map((category) => category.items.find((item) => Boolean(resolveMediaAsset(item.image))))
+    .filter((item): item is (typeof logoCategories)[number]["items"][number] => Boolean(item))
+    .slice(0, 4)
+    .map((item) => ({ src: resolveMediaAsset(item.image) as string, alt: item.title }));
+
   return (
     <>
       <section className="pt-40 pb-16 lg:flex lg:min-h-[100svh] lg:items-center lg:pb-0 lg:pt-32">
@@ -40,7 +49,7 @@ export default function LogoDesignPage() {
             />
           </Reveal>
           <Reveal immediate delay={0.2} variant="fade-scale" className="hidden lg:block">
-            <LogoConstructionRig />
+            <LogoIdentityLab logos={heroLogos} />
           </Reveal>
         </Container>
       </section>
