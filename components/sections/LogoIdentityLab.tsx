@@ -204,7 +204,7 @@ export default function LogoIdentityLab({ logos }: LogoIdentityLabProps) {
     <div ref={stageRef} className="relative mx-auto aspect-square w-full max-w-[440px]" style={{ perspective: 1100 }}>
       <div
         ref={boardRef}
-        className="relative flex h-full w-full cursor-grab touch-none items-center justify-center active:cursor-grabbing"
+        className="relative flex h-full w-full cursor-grab touch-pan-y items-center justify-center active:cursor-grabbing"
         style={{ transformStyle: "preserve-3d" }}
       >
         {FRAGMENTS.map((frag, i) => (

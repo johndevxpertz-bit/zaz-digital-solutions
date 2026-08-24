@@ -238,7 +238,7 @@ export default function PricingValueEngine() {
               ref={(el) => {
                 satRefs.current[i] = el;
               }}
-              className="absolute flex h-[22%] w-[22%] cursor-pointer touch-none flex-col items-center justify-center gap-1 rounded-[var(--zaz-radius)] border border-zaz-border bg-zaz-surface shadow-2xl shadow-black/40"
+              className="absolute flex h-[22%] w-[22%] cursor-pointer touch-pan-y flex-col items-center justify-center gap-1 rounded-[var(--zaz-radius)] border border-zaz-border bg-zaz-surface shadow-2xl shadow-black/40"
               style={{
                 transform: `translate3d(${x}px, 0px, ${z}px) scale(${scale})`,
                 transformStyle: "preserve-3d",

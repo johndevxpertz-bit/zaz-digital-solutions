@@ -240,7 +240,7 @@ export default function AboutArmillarySphere() {
       <div ref={parallaxRef} className="relative h-full w-full" style={{ transformStyle: "preserve-3d" }}>
         <div
           ref={groupRef}
-          className="relative flex h-full w-full cursor-grab touch-none items-center justify-center active:cursor-grabbing"
+          className="relative flex h-full w-full cursor-grab touch-pan-y items-center justify-center active:cursor-grabbing"
           style={{ transformStyle: "preserve-3d" }}
         >
           {/* Ambient glow behind the whole system */}

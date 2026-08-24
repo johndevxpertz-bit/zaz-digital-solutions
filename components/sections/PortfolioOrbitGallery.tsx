@@ -237,7 +237,7 @@ export default function PortfolioOrbitGallery({ items: rawItems }: PortfolioOrbi
               ref={(el) => {
                 tileRefs.current[i] = el;
               }}
-              className={`absolute cursor-grab touch-none overflow-hidden shadow-2xl shadow-black/40 active:cursor-grabbing ${
+              className={`absolute cursor-grab touch-pan-y overflow-hidden shadow-2xl shadow-black/40 active:cursor-grabbing ${
                 item.kind === "logo" ? "rounded-full border-2 border-zaz-accent-dim" : "rounded-[var(--zaz-radius)] border border-zaz-border"
               }`}
               style={{

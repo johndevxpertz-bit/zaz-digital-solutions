@@ -217,7 +217,7 @@ export default function WebsiteLayerStack({ websiteScreenshot }: WebsiteLayerSta
     <div ref={stageRef} className="relative mx-auto w-full max-w-[460px]" style={{ perspective: 1300 }}>
       <div
         ref={rigRef}
-        className="relative aspect-[16/11] w-full cursor-grab touch-none active:cursor-grabbing"
+        className="relative aspect-[16/11] w-full cursor-grab touch-pan-y active:cursor-grabbing"
         style={{ transformStyle: "preserve-3d" }}
       >
         {/* Assembled base: the real browser frame + screenshot */}

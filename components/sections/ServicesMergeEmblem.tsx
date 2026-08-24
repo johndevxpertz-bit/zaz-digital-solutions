@@ -198,7 +198,7 @@ export default function ServicesMergeEmblem() {
               ref={(el) => {
                 glyphRefs.current[i] = el;
               }}
-              className="absolute flex h-[30%] w-[30%] cursor-grab touch-none items-center justify-center rounded-[var(--zaz-radius)] border border-zaz-border bg-zaz-surface shadow-2xl shadow-black/40 active:cursor-grabbing"
+              className="absolute flex h-[30%] w-[30%] cursor-grab touch-pan-y items-center justify-center rounded-[var(--zaz-radius)] border border-zaz-border bg-zaz-surface shadow-2xl shadow-black/40 active:cursor-grabbing"
               style={{ transform: `translate3d(${x}px, 0px, ${z}px)`, transformStyle: "preserve-3d" }}
             >
               <GlyphMaterial glyph={glyph} />
