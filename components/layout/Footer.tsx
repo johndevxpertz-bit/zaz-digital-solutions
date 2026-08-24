@@ -5,6 +5,40 @@ import { navLinks } from "@/lib/nav";
 import { servicePillars } from "@/lib/data/servicePillars";
 import { contactInfo } from "@/lib/data/contact";
 
+// Same circular icon-button treatment as the Navbar's phone link — a
+// consistent "small outline glyph in a bordered circle" pattern already
+// established elsewhere in the site, not a new visual language.
+const socialLinkClass =
+  "flex h-10 w-10 items-center justify-center rounded-full border border-zaz-border-strong text-zaz-text-secondary transition-colors duration-200 hover:border-zaz-accent hover:text-zaz-accent focus-visible:outline focus-visible:outline-1 focus-visible:outline-zaz-accent focus-visible:outline-offset-4";
+
+const socialLinks = [
+  {
+    label: "Instagram",
+    href: "https://www.instagram.com/zazdigitalsolutions?igsi=MTBjMXhuenNjN2g2aA==",
+    icon: (
+      <svg aria-hidden width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" strokeWidth="1.5" />
+        <circle cx="12" cy="12" r="4.2" stroke="currentColor" strokeWidth="1.5" />
+        <circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" />
+      </svg>
+    ),
+  },
+  {
+    label: "Facebook",
+    href: "https://www.facebook.com/profile.php?id=61587543749336",
+    icon: (
+      <svg aria-hidden width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M15 8.5h2V5.2c-.35-.05-1.55-.15-2.95-.15-2.92 0-4.92 1.83-4.92 5.2v2.75H6.2v3.7h2.93V21.5h3.7v-8.8h2.82l.45-3.7h-3.27V10.6c0-1.07.29-1.8 1.87-1.8Z"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+  },
+];
+
 export default function Footer({ logoSrc }: { logoSrc: string | null }) {
   return (
     <footer className="border-t border-zaz-border bg-zaz-bg-deep">
@@ -22,6 +56,20 @@ export default function Footer({ logoSrc }: { logoSrc: string | null }) {
               {contactInfo.phone}
             </a>
             <p>{contactInfo.address}</p>
+          </div>
+          <div className="mt-6 flex items-center gap-3">
+            {socialLinks.map((social) => (
+              <a
+                key={social.label}
+                href={social.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Follow ZAZ Digital Solutions on ${social.label} — opens in a new tab`}
+                className={socialLinkClass}
+              >
+                {social.icon}
+              </a>
+            ))}
           </div>
         </div>
 

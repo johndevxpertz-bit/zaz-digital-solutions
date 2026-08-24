@@ -104,36 +104,60 @@ export async function submitContactForm(
     message,
   ].filter((line): line is string => Boolean(line));
 
-  try {
-    const response = await fetch(RESEND_ENDPOINT, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: fromEmail,
-        to: toEmail,
-        reply_to: email,
-        subject: `New project inquiry — ${projectType} (${name})`,
-        text: bodyLines.join("\n"),
-      }),
-    });
+  // Sent as independent per-recipient requests rather than one call with a
+  // multi-address `to` array. A single Resend call only reports one
+  // success/failure for the whole message — it can't reveal that, say,
+  // support@zazdigitalsolutions.com went through while
+  // maazqureshi632@gmail.com didn't. Sending each recipient its own request
+  // makes every recipient's outcome independently visible in the server
+  // logs, which is exactly what's needed to diagnose "one address is
+  // getting it, the other isn't" instead of guessing.
+  const subject = `New project inquiry — ${projectType} (${name})`;
+  const text = bodyLines.join("\n");
 
-    if (!response.ok) {
-      const body = await response.text();
-      console.error("submitContactForm: email provider error", response.status, body);
-      return {
-        status: "error",
-        message: "Something went wrong sending your message. Please email us directly instead.",
-      };
+  const results = await Promise.allSettled(
+    toEmail.map(async (recipient) => {
+      const response = await fetch(RESEND_ENDPOINT, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ from: fromEmail, to: recipient, reply_to: email, subject, text }),
+      });
+      if (!response.ok) {
+        const body = await response.text();
+        throw new Error(`Resend rejected the send to ${recipient}: ${response.status} ${body}`);
+      }
+      return recipient;
+    })
+  );
+
+  const succeeded: string[] = [];
+  const failed: string[] = [];
+  results.forEach((result, i) => {
+    if (result.status === "fulfilled") {
+      succeeded.push(result.value);
+    } else {
+      failed.push(toEmail[i]);
+      console.error("submitContactForm: delivery failed for one recipient —", result.reason);
     }
-  } catch (error) {
-    console.error("submitContactForm: network error calling email provider", error);
+  });
+
+  if (succeeded.length === 0) {
+    // Every recipient failed — nothing reached anyone, so this is an
+    // honest failure, not a partial success.
     return {
       status: "error",
       message: "Something went wrong sending your message. Please email us directly instead.",
     };
+  }
+
+  if (failed.length > 0) {
+    // At least one recipient got it, so the lead isn't lost — but log
+    // exactly who was missed so it can be caught and fixed, not silently
+    // dropped the way this exact issue reached us in the first place.
+    console.error("submitContactForm: partial delivery — missing recipients:", failed);
   }
 
   return {
