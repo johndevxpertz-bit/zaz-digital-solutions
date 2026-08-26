@@ -171,13 +171,20 @@ h4 {
   outline-offset: 3px;
 }
 
-.zaz-label {
-  font-family: var(--font-body);
-  font-size: var(--zaz-text-label);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--zaz-text-secondary);
-  font-weight: 500;
+/* Layered so Tailwind utilities (e.g. text-zaz-accent) can override this
+   rule's own color — plain unlayered CSS always beats @layer utilities
+   regardless of source order or specificity, which is what let this color
+   silently win over every "zaz-label text-zaz-accent" combination (e.g.
+   PricingCard's "Most popular" label) instead of the intended accent. */
+@layer base {
+  .zaz-label {
+    font-family: var(--font-body);
+    font-size: var(--zaz-text-label);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--zaz-text-secondary);
+    font-weight: 500;
+  }
 }
 
 @keyframes zaz-tile-in {
