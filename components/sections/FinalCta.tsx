@@ -15,7 +15,7 @@ export default function FinalCta() {
               className="zaz-glow-pulse pointer-events-none absolute inset-0 -z-10"
               style={{
                 background:
-                  "radial-gradient(ellipse 60% 50% at 50% 0%, rgba(216,211,200,0.08) 0%, transparent 70%)",
+                  "radial-gradient(ellipse 60% 50% at 50% 0%, rgba(var(--zaz-accent-rgb),0.08) 0%, transparent 70%)",
               }}
             />
 

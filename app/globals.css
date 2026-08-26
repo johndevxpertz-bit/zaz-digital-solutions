@@ -23,6 +23,12 @@
   /* Metallic ivory accent */
   --zaz-accent: #d8d3c8;
   --zaz-accent-dim: #bdb7ab;
+  /* Same value as --zaz-accent, as a bare "r, g, b" triplet — lets a handful
+     of pre-existing hardcoded `rgba(216,211,200,N)` glow/shadow shadows
+     (Button, PricingCard, tab pills, etc.) become theme-reactive via
+     `rgba(var(--zaz-accent-rgb), N)` without rewriting each one's color by
+     hand or restructuring how they're written. */
+  --zaz-accent-rgb: 216, 211, 200;
 
   /* Structure */
   --zaz-border: rgba(244, 241, 234, 0.1);
@@ -55,6 +61,45 @@
   :root {
     --zaz-text-hero: clamp(2.25rem, 1.1rem + 3.6vw, 4.5rem);
   }
+}
+
+/* ===================================================================
+   Light Mode — Design Tokens
+   A deliberately-designed premium palette, not an inversion of the dark
+   one: warm ivory surfaces (never stark white), deep ink text, and a dark
+   bronze/graphite accent chosen specifically for contrast on a light
+   ground (the dark theme's pale metallic-ivory accent would read as
+   washed-out here). Every token below is a same-name override of the
+   :root block above — nothing here changes what the dark theme looks
+   like, and every component already reads colors through these tokens
+   (verified: no component hardcodes bg-black/text-white/bg-gray-* etc.),
+   so this block is the entire light theme.
+   =================================================================== */
+[data-theme="light"] {
+  /* Backgrounds */
+  --zaz-bg: #faf7f1;
+  --zaz-bg-deep: #f1ebdf;
+
+  /* Surfaces */
+  --zaz-surface: #ffffff;
+  --zaz-surface-alt: #f6f2ea;
+  --zaz-card: #fdfbf7;
+
+  /* Text */
+  --zaz-text: #1c1b18;
+  --zaz-text-secondary: #5b564c;
+  --zaz-muted: #76705f;
+
+  /* Dark bronze/graphite accent — deliberately not the dark theme's pale
+     ivory, which would have poor contrast against a light background. */
+  --zaz-accent: #3d362a;
+  --zaz-accent-dim: #5c5140;
+  --zaz-accent-rgb: 61, 54, 42;
+
+  /* Structure — translucent dark instead of translucent light, so borders
+     stay visible against light surfaces instead of nearly vanishing. */
+  --zaz-border: rgba(28, 27, 24, 0.1);
+  --zaz-border-strong: rgba(28, 27, 24, 0.18);
 }
 
 @theme inline {
@@ -90,6 +135,10 @@
 html {
   scroll-behavior: auto;
   color-scheme: dark;
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
 }
 
 body {

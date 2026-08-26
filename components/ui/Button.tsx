@@ -18,9 +18,9 @@ const base =
 
 const variants = {
   primary:
-    "bg-zaz-accent text-zaz-bg-deep hover:bg-zaz-accent-dim hover:shadow-[0_12px_30px_-10px_rgba(216,211,200,0.55)]",
+    "bg-zaz-accent text-zaz-bg-deep hover:bg-zaz-accent-dim hover:shadow-[0_12px_30px_-10px_rgba(var(--zaz-accent-rgb),0.55)]",
   secondary:
-    "border border-zaz-border-strong text-zaz-text hover:border-zaz-accent hover:text-zaz-accent hover:shadow-[0_12px_26px_-14px_rgba(216,211,200,0.35)]",
+    "border border-zaz-border-strong text-zaz-text hover:border-zaz-accent hover:text-zaz-accent hover:shadow-[0_12px_26px_-14px_rgba(var(--zaz-accent-rgb),0.35)]",
 };
 
 export default function Button({

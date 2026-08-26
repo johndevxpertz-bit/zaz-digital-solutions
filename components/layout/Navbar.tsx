@@ -5,6 +5,7 @@ import Link from "next/link";
 import Logo from "@/components/ui/Logo";
 import Container from "@/components/ui/Container";
 import Button from "@/components/ui/Button";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 import MobileNav from "@/components/layout/MobileNav";
 import { navLinks, ctaLink } from "@/lib/nav";
 import { contactInfo } from "@/lib/data/contact";
@@ -150,6 +151,7 @@ export default function Navbar({ logoSrc }: { logoSrc: string | null }) {
               />
             </svg>
           </a>
+          <ThemeToggle />
           <Button href={ctaLink.href} variant="secondary">
             {ctaLink.label}
           </Button>

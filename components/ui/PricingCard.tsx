@@ -31,15 +31,15 @@ export default function PricingCard({
       ref={tiltRef}
       className={`relative flex h-full flex-col rounded-[var(--zaz-radius)] border p-7 transition-shadow duration-300 will-change-transform ${
         highlighted
-          ? "border-zaz-accent bg-zaz-card shadow-[0_20px_50px_-24px_rgba(216,211,200,0.4)]"
-          : "border-zaz-border bg-zaz-surface hover:border-zaz-accent-dim hover:shadow-[0_20px_40px_-26px_rgba(216,211,200,0.25)]"
+          ? "border-zaz-accent bg-zaz-card shadow-[0_20px_50px_-24px_rgba(var(--zaz-accent-rgb),0.4)]"
+          : "border-zaz-border bg-zaz-surface hover:border-zaz-accent-dim hover:shadow-[0_20px_40px_-26px_rgba(var(--zaz-accent-rgb),0.25)]"
       }`}
     >
       {highlighted && (
         <span
           aria-hidden
           className="zaz-glow-pulse pointer-events-none absolute -inset-px -z-10 rounded-[var(--zaz-radius)] blur-xl"
-          style={{ boxShadow: "0 0 60px 10px rgba(216, 211, 200, 0.12)" }}
+          style={{ boxShadow: "0 0 60px 10px rgba(var(--zaz-accent-rgb), 0.12)" }}
         />
       )}
 

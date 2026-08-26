@@ -19,7 +19,7 @@ type LogoCategoryPanelProps = {
 function pillClasses(active: boolean) {
   return `rounded-[var(--zaz-radius-pill)] px-3 py-1.5 text-xs font-medium transition-all duration-200 ease-[var(--zaz-ease)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 ${
     active
-      ? "bg-zaz-accent text-zaz-bg-deep shadow-[0_6px_16px_-8px_rgba(216,211,200,0.5)]"
+      ? "bg-zaz-accent text-zaz-bg-deep shadow-[0_6px_16px_-8px_rgba(var(--zaz-accent-rgb),0.5)]"
       : "border border-zaz-border text-zaz-text-secondary hover:border-zaz-accent-dim hover:text-zaz-text"
   }`;
 }

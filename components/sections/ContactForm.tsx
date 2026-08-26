@@ -6,7 +6,7 @@ import { projectTypeOptions, budgetOptions } from "@/lib/data/contact";
 import { submitContactForm, type ContactFormState } from "@/app/contact/actions";
 
 const inputClasses =
-  "w-full rounded-[var(--zaz-radius-sm)] border border-zaz-border-strong bg-zaz-surface px-4 py-3 text-sm text-zaz-text placeholder:text-zaz-muted transition-all duration-200 ease-[var(--zaz-ease)] focus:border-zaz-accent focus:shadow-[0_0_0_3px_rgba(216,211,200,0.12)] focus:outline-none";
+  "w-full rounded-[var(--zaz-radius-sm)] border border-zaz-border-strong bg-zaz-surface px-4 py-3 text-sm text-zaz-text placeholder:text-zaz-muted transition-all duration-200 ease-[var(--zaz-ease)] focus:border-zaz-accent focus:shadow-[0_0_0_3px_rgba(var(--zaz-accent-rgb),0.12)] focus:outline-none";
 
 const initialState: ContactFormState = { status: "idle", message: "" };
 

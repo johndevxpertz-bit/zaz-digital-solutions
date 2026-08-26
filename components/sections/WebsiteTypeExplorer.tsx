@@ -63,7 +63,7 @@ export default function WebsiteTypeExplorer({ types, panels, customPanel }: Webs
             }}
             className={`rounded-[var(--zaz-radius-pill)] px-5 py-2 text-sm font-medium transition-all duration-200 ease-[var(--zaz-ease)] active:scale-95 ${
               buildType === type.slug
-                ? "bg-zaz-accent text-zaz-bg-deep shadow-[0_8px_20px_-10px_rgba(216,211,200,0.5)]"
+                ? "bg-zaz-accent text-zaz-bg-deep shadow-[0_8px_20px_-10px_rgba(var(--zaz-accent-rgb),0.5)]"
                 : "text-zaz-text-secondary hover:text-zaz-text"
             }`}
           >
@@ -92,7 +92,7 @@ export default function WebsiteTypeExplorer({ types, panels, customPanel }: Webs
                 }}
                 className={`rounded-[var(--zaz-radius-pill)] px-4 py-2 text-sm font-medium transition-all duration-200 ease-[var(--zaz-ease)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 ${
                   activeType === type.slug
-                    ? "bg-zaz-accent text-zaz-bg-deep shadow-[0_8px_20px_-10px_rgba(216,211,200,0.5)]"
+                    ? "bg-zaz-accent text-zaz-bg-deep shadow-[0_8px_20px_-10px_rgba(var(--zaz-accent-rgb),0.5)]"
                     : "border border-zaz-border-strong text-zaz-text-secondary hover:border-zaz-accent-dim hover:text-zaz-text"
                 }`}
               >

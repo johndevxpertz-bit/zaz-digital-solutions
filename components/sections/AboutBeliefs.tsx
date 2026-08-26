@@ -38,7 +38,7 @@ export default function AboutBeliefs() {
           {beliefs.map((belief, index) => (
             <Reveal key={belief.name} delay={index * 0.07} variant="fade-scale">
               <TiltCard max={5} scale={1.015}>
-                <div className="group h-full rounded-[var(--zaz-radius)] border border-zaz-border bg-zaz-surface p-8 transition-all duration-300 hover:border-zaz-accent hover:shadow-[0_20px_45px_-26px_rgba(216,211,200,0.3)]">
+                <div className="group h-full rounded-[var(--zaz-radius)] border border-zaz-border bg-zaz-surface p-8 transition-all duration-300 hover:border-zaz-accent hover:shadow-[0_20px_45px_-26px_rgba(var(--zaz-accent-rgb),0.3)]">
                   <span className="zaz-label text-zaz-muted transition-colors duration-300 group-hover:text-zaz-accent">
                     {belief.number}
                   </span>

@@ -56,7 +56,7 @@ export default function AboutCapabilities() {
             <Reveal key={item.name} delay={index * 0.05} variant="fade-scale">
               <Link
                 href={item.href}
-                className="group flex h-full flex-col rounded-[var(--zaz-radius)] border border-zaz-border bg-zaz-surface p-7 transition-all duration-300 hover:-translate-y-1 hover:border-zaz-accent-dim hover:shadow-[0_20px_40px_-26px_rgba(216,211,200,0.25)]"
+                className="group flex h-full flex-col rounded-[var(--zaz-radius)] border border-zaz-border bg-zaz-surface p-7 transition-all duration-300 hover:-translate-y-1 hover:border-zaz-accent-dim hover:shadow-[0_20px_40px_-26px_rgba(var(--zaz-accent-rgb),0.25)]"
               >
                 <span className="transition-transform duration-300 ease-[var(--zaz-ease)] group-hover:scale-110">
                   <ServiceGlyph icon={item.icon} />

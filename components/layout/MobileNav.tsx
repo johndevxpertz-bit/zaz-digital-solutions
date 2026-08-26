@@ -6,6 +6,7 @@ import Link from "next/link";
 import { navLinks, ctaLink } from "@/lib/nav";
 import { contactInfo } from "@/lib/data/contact";
 import { lockPageScroll, unlockPageScroll } from "@/lib/animation/lenisController";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 type MobileNavProps = {
   open: boolean;
@@ -192,6 +193,7 @@ export default function MobileNav({ open, onClose }: MobileNavProps) {
             </svg>
             {contactInfo.phone}
           </a>
+          <ThemeToggle />
         </div>
       </nav>
     </div>,
