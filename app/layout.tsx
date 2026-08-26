@@ -5,6 +5,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import SmoothScrollProvider from "@/components/layout/SmoothScrollProvider";
 import PageLoader from "@/components/layout/PageLoader";
+import ChatWidget from "@/components/chat/ChatWidget";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import StructuredData from "@/components/seo/StructuredData";
 import { resolveBrandAsset } from "@/lib/brand";
@@ -89,6 +90,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <Footer logoSrc={logoSrc} />
           </SmoothScrollProvider>
           <PageLoader logoSrc={logoSrc} />
+          <ChatWidget />
         </ThemeProvider>
       </body>
     </html>

@@ -15,6 +15,73 @@ function isValidEmail(value: string): boolean {
 }
 
 /**
+ * Delivery core for submitContactForm: sends independent per-recipient
+ * requests (see the comment at its call site below for why) to the required
+ * recipients plus any CONTACT_TO_EMAIL extras, and reports which addresses
+ * actually succeeded/failed. The caller can't shrink or bypass the
+ * required-recipient list.
+ */
+async function sendNotificationEmail(options: {
+  apiKey: string;
+  fromEmail: string;
+  replyTo: string;
+  subject: string;
+  text: string;
+}): Promise<{ succeeded: string[]; failed: string[] }> {
+  const REQUIRED_RECIPIENTS = [contactInfo.email, "maazqureshi632@gmail.com"];
+  const extraRecipients = (process.env.CONTACT_TO_EMAIL ?? "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+  const toEmail = Array.from(new Set([...REQUIRED_RECIPIENTS, ...extraRecipients]));
+
+  // Sent as independent per-recipient requests rather than one call with a
+  // multi-address `to` array. A single Resend call only reports one
+  // success/failure for the whole message — it can't reveal that, say,
+  // support@zazdigitalsolutions.com went through while
+  // maazqureshi632@gmail.com didn't. Sending each recipient its own request
+  // makes every recipient's outcome independently visible in the server
+  // logs, which is exactly what's needed to diagnose "one address is
+  // getting it, the other isn't" instead of guessing.
+  const results = await Promise.allSettled(
+    toEmail.map(async (recipient) => {
+      const response = await fetch(RESEND_ENDPOINT, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${options.apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: options.fromEmail,
+          to: recipient,
+          reply_to: options.replyTo,
+          subject: options.subject,
+          text: options.text,
+        }),
+      });
+      if (!response.ok) {
+        const body = await response.text();
+        throw new Error(`Resend rejected the send to ${recipient}: ${response.status} ${body}`);
+      }
+      return recipient;
+    })
+  );
+
+  const succeeded: string[] = [];
+  const failed: string[] = [];
+  results.forEach((result, i) => {
+    if (result.status === "fulfilled") {
+      succeeded.push(result.value);
+    } else {
+      failed.push(toEmail[i]);
+      console.error("sendNotificationEmail: delivery failed for one recipient —", result.reason);
+    }
+  });
+
+  return { succeeded, failed };
+}
+
+/**
  * Server Action backing the contact form — this is the "API route" for this
  * form: Next.js compiles it to its own POST endpoint, the implementation
  * never ships to the client bundle, and env vars stay server-only.
@@ -81,16 +148,6 @@ export async function submitContactForm(
     };
   }
 
-  // Every submission notifies both the primary support inbox and the
-  // secondary recipient — always, not conditionally on an env var being set
-  // correctly. CONTACT_TO_EMAIL (comma-separated) can add further recipients
-  // on top of these two, but can never remove either of them.
-  const REQUIRED_RECIPIENTS = [contactInfo.email, "maazqureshi632@gmail.com"];
-  const extraRecipients = (process.env.CONTACT_TO_EMAIL ?? "")
-    .split(",")
-    .map((value) => value.trim())
-    .filter(Boolean);
-  const toEmail = Array.from(new Set([...REQUIRED_RECIPIENTS, ...extraRecipients]));
   const fromEmail = process.env.CONTACT_FROM_EMAIL || "ZAZ Digital Solutions Website <onboarding@resend.dev>";
 
   const bodyLines = [
@@ -104,45 +161,10 @@ export async function submitContactForm(
     message,
   ].filter((line): line is string => Boolean(line));
 
-  // Sent as independent per-recipient requests rather than one call with a
-  // multi-address `to` array. A single Resend call only reports one
-  // success/failure for the whole message — it can't reveal that, say,
-  // support@zazdigitalsolutions.com went through while
-  // maazqureshi632@gmail.com didn't. Sending each recipient its own request
-  // makes every recipient's outcome independently visible in the server
-  // logs, which is exactly what's needed to diagnose "one address is
-  // getting it, the other isn't" instead of guessing.
   const subject = `New project inquiry — ${projectType} (${name})`;
   const text = bodyLines.join("\n");
 
-  const results = await Promise.allSettled(
-    toEmail.map(async (recipient) => {
-      const response = await fetch(RESEND_ENDPOINT, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ from: fromEmail, to: recipient, reply_to: email, subject, text }),
-      });
-      if (!response.ok) {
-        const body = await response.text();
-        throw new Error(`Resend rejected the send to ${recipient}: ${response.status} ${body}`);
-      }
-      return recipient;
-    })
-  );
-
-  const succeeded: string[] = [];
-  const failed: string[] = [];
-  results.forEach((result, i) => {
-    if (result.status === "fulfilled") {
-      succeeded.push(result.value);
-    } else {
-      failed.push(toEmail[i]);
-      console.error("submitContactForm: delivery failed for one recipient —", result.reason);
-    }
-  });
+  const { succeeded, failed } = await sendNotificationEmail({ apiKey, fromEmail, replyTo: email, subject, text });
 
   if (succeeded.length === 0) {
     // Every recipient failed — nothing reached anyone, so this is an
