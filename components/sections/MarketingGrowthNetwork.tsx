@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { gsap, registerGsap, prefersReducedMotion } from "@/lib/animation/gsap";
+import { gsap, registerGsap, prefersReducedMotion, gateContextToViewport } from "@/lib/animation/gsap";
 
 type Vec = { x: number; y: number };
 
@@ -277,7 +277,15 @@ export default function MarketingGrowthNetwork() {
       };
     }, stageRef);
 
-    return () => ctx.revert();
+    // Pauses the drift/pulse/tilt/phase-cycle loops (repeat: -1) while this
+    // hero is scrolled out of view — same tween instances, just paused and
+    // resumed, nothing recreated.
+    const disconnectVisibilityGate = gateContextToViewport(ctx, stageRef.current!);
+
+    return () => {
+      disconnectVisibilityGate();
+      ctx.revert();
+    };
   }, []);
 
   return (

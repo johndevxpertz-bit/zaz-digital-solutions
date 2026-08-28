@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Image from "next/image";
-import { gsap, registerGsap, prefersReducedMotion } from "@/lib/animation/gsap";
+import { gsap, registerGsap, prefersReducedMotion, gateContextToViewport } from "@/lib/animation/gsap";
 import BrowserFrame from "@/components/ui/BrowserFrame";
 
 type WebsiteLayerStackProps = {
@@ -210,7 +210,14 @@ export default function WebsiteLayerStack({ websiteScreenshot }: WebsiteLayerSta
       };
     }, stageRef);
 
-    return () => ctx.revert();
+    // Pauses the idle infinite (repeat: -1) loops while this hero is
+    // scrolled out of view — same tween instances, just paused/resumed.
+    const disconnectVisibilityGate = gateContextToViewport(ctx, stageRef.current!);
+
+    return () => {
+      disconnectVisibilityGate();
+      ctx.revert();
+    };
   }, []);
 
   return (

@@ -1,8 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import ChatPanel from "@/components/chat/ChatPanel";
+import dynamic from "next/dynamic";
 import { lockPageScroll, unlockPageScroll } from "@/lib/animation/lenisController";
+
+// Code-split: ChatWidget itself mounts on every route (see app/layout.tsx),
+// but ChatPanel's JS — and everything it pulls in — should only be fetched
+// once a visitor actually opens the chat, not as part of every page's
+// initial bundle. `open && <ChatPanel />` below already deferred *mounting*
+// it; wrapping the import in next/dynamic defers *downloading* it too.
+const ChatPanel = dynamic(() => import("@/components/chat/ChatPanel"));
 
 /**
  * Floating chat entry point, mounted once from app/layout.tsx (a sibling of

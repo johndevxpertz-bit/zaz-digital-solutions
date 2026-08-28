@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Image from "next/image";
-import { gsap, registerGsap, prefersReducedMotion } from "@/lib/animation/gsap";
+import { gsap, registerGsap, prefersReducedMotion, gateContextToViewport } from "@/lib/animation/gsap";
 
 export type PortfolioOrbitItem =
   | { kind: "logo"; src: string; alt: string }
@@ -221,7 +221,15 @@ export default function PortfolioOrbitGallery({ items: rawItems }: PortfolioOrbi
       };
     }, stageRef);
 
-    return () => ctx.revert();
+    // Pauses the continuous orbit/feature-cycle loops (repeat: -1) while
+    // this section is scrolled out of view — same tween instances, just
+    // paused/resumed.
+    const disconnectVisibilityGate = gateContextToViewport(ctx, stageRef.current!);
+
+    return () => {
+      disconnectVisibilityGate();
+      ctx.revert();
+    };
   }, [items.length]);
 
   if (items.length === 0) return null;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { gsap, registerGsap, prefersReducedMotion } from "@/lib/animation/gsap";
+import { gsap, registerGsap, prefersReducedMotion, gateContextToViewport } from "@/lib/animation/gsap";
 
 const NODES = [
   { x: 4, y: 10 },
@@ -132,7 +132,15 @@ export default function ContactSignalConstellation() {
       return () => wrap.removeEventListener("pointermove", onPointerMove);
     }, wrapRef);
 
-    return () => ctx.revert();
+    // Pauses the node drift / packet-cycle loops (repeat: -1) while this
+    // section is scrolled out of view — same tween instances, just
+    // paused/resumed.
+    const disconnectVisibilityGate = gateContextToViewport(ctx, wrapRef.current!);
+
+    return () => {
+      disconnectVisibilityGate();
+      ctx.revert();
+    };
   }, []);
 
   return (

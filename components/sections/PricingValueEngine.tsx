@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { gsap, registerGsap, prefersReducedMotion } from "@/lib/animation/gsap";
+import { gsap, registerGsap, prefersReducedMotion, gateContextToViewport } from "@/lib/animation/gsap";
 
 const SATELLITES = [
   { label: "Logo" },
@@ -173,7 +173,14 @@ export default function PricingValueEngine() {
       };
     }, stageRef);
 
-    return () => ctx.revert();
+    // Pauses the idle infinite (repeat: -1) loops while this hero is
+    // scrolled out of view — same tween instances, just paused/resumed.
+    const disconnectVisibilityGate = gateContextToViewport(ctx, stageRef.current!);
+
+    return () => {
+      disconnectVisibilityGate();
+      ctx.revert();
+    };
   }, []);
 
   return (

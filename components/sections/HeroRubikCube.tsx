@@ -1,7 +1,24 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import * as THREE from "three";
+import {
+  ACESFilmicToneMapping,
+  AmbientLight,
+  BoxGeometry,
+  CanvasTexture,
+  DirectionalLight,
+  Group,
+  HemisphereLight,
+  MathUtils,
+  Mesh,
+  MeshStandardMaterial,
+  Object3D,
+  PerspectiveCamera,
+  Scene,
+  SRGBColorSpace,
+  Texture,
+  WebGLRenderer,
+} from "three";
 import { gsap, prefersReducedMotion } from "@/lib/animation/gsap";
 
 type HeroRubikCubeProps = {
@@ -28,7 +45,7 @@ const DARK_TILE = "#1c1c1c";
 // — the "free-floating object" look rather than "object trapped in a box".
 const OVERSCAN = 1.15;
 
-type Cubelet = { mesh: THREE.Mesh };
+type Cubelet = { mesh: Mesh };
 type Move = { axis: "x" | "y" | "z"; layer: number; dir: 1 | -1 };
 
 /**
@@ -78,15 +95,15 @@ function buildStickerCanvas(img: HTMLImageElement, row: number, col: number): HT
   return canvas;
 }
 
-function darkMaterial(): THREE.MeshStandardMaterial {
+function darkMaterial(): MeshStandardMaterial {
   // Slightly brighter base + lower roughness than before: still reads as
   // black/near-black at rest, but takes a sharper, more defined specular
   // highlight from the key light instead of absorbing it — the "controlled
   // studio lighting on a dark object" look rather than a flat void.
-  return new THREE.MeshStandardMaterial({ color: 0x1c1c1e, metalness: 0.62, roughness: 0.3 });
+  return new MeshStandardMaterial({ color: 0x1c1c1e, metalness: 0.62, roughness: 0.3 });
 }
 
-function snapOrientation(mesh: THREE.Object3D) {
+function snapOrientation(mesh: Object3D) {
   mesh.updateMatrix();
   const m = mesh.matrix.clone();
   const e = m.elements;
@@ -109,7 +126,7 @@ function snapOrientation(mesh: THREE.Object3D) {
  * metal" material — brand-dark, not the rainbow-sticker Rubik's palette.
  * Moves are real layer rotations:
  * a move selects every cubelet whose position matches a layer, reparents
- * them under a temporary pivot (THREE.Object3D#attach, which preserves
+ * them under a temporary pivot (Object3D#attach, which preserves
  * world transform), tweens the pivot 90° on the correct axis, then
  * reparents the cubelets back with their position/orientation snapped to
  * the nearest exact grid value to prevent float drift across many moves.
@@ -123,10 +140,42 @@ export default function HeroRubikCube({ logoSrc }: HeroRubikCubeProps) {
 
     let disposed = false;
     let rafId = 0;
-    let renderer: THREE.WebGLRenderer | null = null;
+    let renderer: WebGLRenderer | null = null;
     let idleTimer: ReturnType<typeof setTimeout> | null = null;
     const cleanupFns: Array<() => void> = [];
     const reduced = prefersReducedMotion();
+
+    // Visibility gating: the render loop only runs while the cube is both
+    // scrolled into view and the tab is active. This never changes how the
+    // cube looks while it IS visible — it only stops paying real per-frame
+    // GPU/CPU cost for a scene nobody can currently see. Starts optimistic
+    // (true) since the Hero is virtually always the first thing on screen,
+    // so nothing is skipped before the IntersectionObserver's first callback
+    // arrives a moment after mount.
+    let inViewport = true;
+    let tabVisible = !document.hidden;
+    let resumeTick: (() => void) | null = null;
+
+    function isVisible() {
+      return inViewport && tabVisible;
+    }
+
+    const intersectionObserver = new IntersectionObserver(
+      ([entry]) => {
+        inViewport = entry.isIntersecting;
+        if (isVisible()) resumeTick?.();
+      },
+      { threshold: 0 }
+    );
+    intersectionObserver.observe(container);
+    cleanupFns.push(() => intersectionObserver.disconnect());
+
+    function handleVisibilityChange() {
+      tabVisible = !document.hidden;
+      if (isVisible()) resumeTick?.();
+    }
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    cleanupFns.push(() => document.removeEventListener("visibilitychange", handleVisibilityChange));
 
     const img = new Image();
     // logoSrc is an unencoded path straight from the filesystem (may
@@ -140,7 +189,7 @@ export default function HeroRubikCube({ logoSrc }: HeroRubikCubeProps) {
     };
 
     function setup(img: HTMLImageElement) {
-      const scene = new THREE.Scene();
+      const scene = new Scene();
       // Closer + wider than before: a narrower FOV at a longer distance
       // reads as a flat, distant "product shot"; this is closer and wider
       // for the strong-perspective, near-camera, cinematic feel the brief
@@ -148,13 +197,13 @@ export default function HeroRubikCube({ logoSrc }: HeroRubikCubeProps) {
       // corners), while still keeping every corner inside the frustum
       // across the full rotation range (verified against the actual
       // rotating geometry, not just a static estimate).
-      const camera = new THREE.PerspectiveCamera(52, 1, 0.1, 100);
+      const camera = new PerspectiveCamera(52, 1, 0.1, 100);
       camera.position.set(3.95, 3.02, 5.35);
       camera.lookAt(0, 0, 0);
 
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer = new WebGLRenderer({ antialias: true, alpha: true });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMapping = ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.35;
       container!.appendChild(renderer.domElement);
       renderer.domElement.style.touchAction = "pan-y";
@@ -178,20 +227,20 @@ export default function HeroRubikCube({ logoSrc }: HeroRubikCubeProps) {
       // cube's edges against the background and a soft hemisphere fill for
       // gentle top-to-bottom falloff — all still additive/subtractive on
       // existing dark materials, not colored/neon.
-      scene.add(new THREE.AmbientLight(0xffffff, 0.75));
-      scene.add(new THREE.HemisphereLight(0xffffff, 0x1a1a1a, 0.5));
-      const key = new THREE.DirectionalLight(0xffffff, 1.7);
+      scene.add(new AmbientLight(0xffffff, 0.75));
+      scene.add(new HemisphereLight(0xffffff, 0x1a1a1a, 0.5));
+      const key = new DirectionalLight(0xffffff, 1.7);
       key.position.set(4, 6, 5);
       scene.add(key);
-      const fill = new THREE.DirectionalLight(0xd8d3c8, 0.55);
+      const fill = new DirectionalLight(0xd8d3c8, 0.55);
       fill.position.set(-4, -2, -3);
       scene.add(fill);
-      const rim = new THREE.DirectionalLight(0xf4f1ea, 0.9);
+      const rim = new DirectionalLight(0xf4f1ea, 0.9);
       rim.position.set(-2, 3, -6);
       scene.add(rim);
 
-      const orbit = new THREE.Group();
-      const cubeGroup = new THREE.Group();
+      const orbit = new Group();
+      const cubeGroup = new Group();
       orbit.add(cubeGroup);
       scene.add(orbit);
 
@@ -200,20 +249,20 @@ export default function HeroRubikCube({ logoSrc }: HeroRubikCubeProps) {
       orbit.rotation.x = -0.32;
       orbit.rotation.y = 0.55;
 
-      const stickerTextures = new Map<string, THREE.CanvasTexture>();
-      function textureFor(row: number, col: number): THREE.Texture {
+      const stickerTextures = new Map<string, CanvasTexture>();
+      function textureFor(row: number, col: number): Texture {
         const key = `${row}:${col}`;
         let tex = stickerTextures.get(key);
         if (!tex) {
-          tex = new THREE.CanvasTexture(buildStickerCanvas(img, row, col));
-          tex.colorSpace = THREE.SRGBColorSpace;
+          tex = new CanvasTexture(buildStickerCanvas(img, row, col));
+          tex.colorSpace = SRGBColorSpace;
           stickerTextures.set(key, tex);
         }
         return tex;
       }
 
-      function logoFaceMaterial(row: number, col: number): THREE.MeshStandardMaterial {
-        return new THREE.MeshStandardMaterial({
+      function logoFaceMaterial(row: number, col: number): MeshStandardMaterial {
+        return new MeshStandardMaterial({
           map: textureFor(row, col),
           metalness: 0.4,
           roughness: 0.22,
@@ -223,7 +272,7 @@ export default function HeroRubikCube({ logoSrc }: HeroRubikCubeProps) {
       }
 
       const cubelets: Cubelet[] = [];
-      const geometry = new THREE.BoxGeometry(CUBELET_SIZE, CUBELET_SIZE, CUBELET_SIZE);
+      const geometry = new BoxGeometry(CUBELET_SIZE, CUBELET_SIZE, CUBELET_SIZE);
 
       for (const gx of LAYERS) {
         for (const gy of LAYERS) {
@@ -244,7 +293,7 @@ export default function HeroRubikCube({ logoSrc }: HeroRubikCubeProps) {
             if (gz === 1) materials[4] = logoFaceMaterial(1 - gy, gx + 1);
             if (gz === -1) materials[5] = logoFaceMaterial(1 - gy, 1 - gx);
 
-            const mesh = new THREE.Mesh(geometry, materials);
+            const mesh = new Mesh(geometry, materials);
             mesh.position.set(gx * SPACING, gy * SPACING, gz * SPACING);
             cubeGroup.add(mesh);
             cubelets.push({ mesh });
@@ -272,7 +321,7 @@ export default function HeroRubikCube({ logoSrc }: HeroRubikCubeProps) {
           const selected = cubelets.filter(
             (c) => Math.round(c.mesh.position[move.axis] / SPACING) === move.layer
           );
-          const pivot = new THREE.Group();
+          const pivot = new Group();
           cubeGroup.add(pivot);
           selected.forEach((c) => pivot.attach(c.mesh));
 
@@ -373,7 +422,7 @@ export default function HeroRubikCube({ logoSrc }: HeroRubikCubeProps) {
         // calls preventDefault, so the browser's own vertical pan proceeds
         // unimpeded regardless of what we do with dy here).
         if (dragPointerType === "mouse") {
-          orbit.rotation.x = THREE.MathUtils.clamp(orbit.rotation.x + dy * sensitivity, -1.1, 1.1);
+          orbit.rotation.x = MathUtils.clamp(orbit.rotation.x + dy * sensitivity, -1.1, 1.1);
           velocityY = dy * sensitivity;
         }
       }
@@ -408,11 +457,19 @@ export default function HeroRubikCube({ logoSrc }: HeroRubikCubeProps) {
       // ---- Render loop ----
       function tick() {
         if (disposed) return;
+        // Off-screen or tab backgrounded: stop rendering and stop
+        // rescheduling — the loop simply halts here (rafId reset to 0) until
+        // resumeTick() restarts it from whichever visibility handler fires
+        // next. Never more than one requestAnimationFrame in flight at once.
+        if (!isVisible()) {
+          rafId = 0;
+          return;
+        }
         if (!isDragging) {
           // Inertia decay.
           if (Math.abs(velocityX) > 0.0002 || Math.abs(velocityY) > 0.0002) {
             orbit.rotation.y += velocityX;
-            orbit.rotation.x = THREE.MathUtils.clamp(orbit.rotation.x + velocityY, -1.1, 1.1);
+            orbit.rotation.x = MathUtils.clamp(orbit.rotation.x + velocityY, -1.1, 1.1);
             velocityX *= 0.94;
             velocityY *= 0.94;
           } else if (autoIdleSpin) {
@@ -423,9 +480,16 @@ export default function HeroRubikCube({ logoSrc }: HeroRubikCubeProps) {
         rafId = requestAnimationFrame(tick);
       }
 
-      // The render loop always runs — reduced motion still needs it to
-      // reflect user-initiated drag/inertia, it just never starts the
-      // automatic scramble/solve/idle-spin cycle (gated above via `reduced`).
+      resumeTick = () => {
+        if (!disposed && rafId === 0) {
+          rafId = requestAnimationFrame(tick);
+        }
+      };
+
+      // The render loop always runs while visible — reduced motion still
+      // needs it to reflect user-initiated drag/inertia, it just never
+      // starts the automatic scramble/solve/idle-spin cycle (gated above via
+      // `reduced`).
       tick();
       if (!reduced) scrambleAndSolve();
 

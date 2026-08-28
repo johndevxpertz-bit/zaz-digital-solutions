@@ -51,12 +51,17 @@ export default function Navbar({ logoSrc }: { logoSrc: string | null }) {
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ease-[var(--zaz-ease)] ${
         scrolled
-          ? "border-b border-zaz-border bg-zaz-bg-deep/80 backdrop-blur-md"
+          ? // Lighter blur radius than before (was backdrop-blur-md/12px) —
+            // a fixed full-width blurred header recomposites on every scroll
+            // frame, so the radius directly drives scroll cost. Opacity
+            // raised slightly to compensate, keeping the same solid "glass"
+            // read with less GPU work per frame.
+            "border-b border-zaz-border bg-zaz-bg-deep/90 backdrop-blur-sm"
           : "border-b border-transparent bg-transparent"
       }`}
     >
       <Container className="flex h-24 items-center justify-between">
-        <Logo src={logoSrc} imgClassName="h-[70.4px] w-auto" />
+        <Logo src={logoSrc} imgClassName="h-[70.4px] w-auto" priority />
 
         <nav className="hidden items-center gap-9 md:flex">
           {navLinks.map((link) =>

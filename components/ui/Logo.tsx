@@ -6,6 +6,8 @@ type LogoProps = {
   className?: string;
   /** Overrides the rendered image height (width follows automatically to preserve aspect ratio). Defaults to the header/footer size. */
   imgClassName?: string;
+  /** Opt-in only — pass true for the single above-the-fold usage (Navbar). Every other usage (Footer, PageLoader, etc.) is below the fold and shouldn't compete for priority-fetch bandwidth. */
+  priority?: boolean;
 };
 
 // Real source file is a stacked mark + two-line wordmark lockup (1402x1122,
@@ -19,7 +21,7 @@ const LOGO_ASPECT = { width: 175, height: 140 };
  * Falls back to a plain text wordmark rather than fabricating a logo —
  * see public/brand/ASSET-REQUIREMENTS.md.
  */
-export default function Logo({ src, className, imgClassName }: LogoProps) {
+export default function Logo({ src, className, imgClassName, priority = false }: LogoProps) {
   return (
     <Link
       href="/"
@@ -32,7 +34,7 @@ export default function Logo({ src, className, imgClassName }: LogoProps) {
           alt="ZAZ Digital Solutions"
           width={LOGO_ASPECT.width}
           height={LOGO_ASPECT.height}
-          priority
+          priority={priority}
           className={imgClassName ?? "h-16 w-auto"}
         />
       ) : (

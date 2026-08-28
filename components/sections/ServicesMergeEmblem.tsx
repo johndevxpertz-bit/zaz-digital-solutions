@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { gsap, registerGsap, prefersReducedMotion } from "@/lib/animation/gsap";
+import { gsap, registerGsap, prefersReducedMotion, gateContextToViewport } from "@/lib/animation/gsap";
 
 const GLYPHS = ["logo", "website", "marketing"] as const;
 const RADIUS = 100;
@@ -169,7 +169,14 @@ export default function ServicesMergeEmblem() {
       };
     }, stageRef);
 
-    return () => ctx.revert();
+    // Pauses the idle infinite (repeat: -1) loops while this hero is
+    // scrolled out of view — same tween instances, just paused/resumed.
+    const disconnectVisibilityGate = gateContextToViewport(ctx, stageRef.current!);
+
+    return () => {
+      disconnectVisibilityGate();
+      ctx.revert();
+    };
   }, []);
 
   return (
